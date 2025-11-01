@@ -65,6 +65,7 @@ class FlibustaClient(val flibustaUrl: String) : IFlibustaClient {
 
             Files.write(bookFile, bookBytes)
 
+            // TODO rename downloaded book to title - author format
             bookFile
         }.also {
             client.close()
