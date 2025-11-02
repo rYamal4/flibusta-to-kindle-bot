@@ -44,3 +44,6 @@ bin/
 
 ### Environment ###
 .env
+
+### Docker ###
+docker-compose.override.yml

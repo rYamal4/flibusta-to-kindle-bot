@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  send-to-kindle-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: send-to-kindle-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - TZ=Europe/Moscow
+    volumes:
+      # Монтируем директорию для временных файлов книг
+      - book-cache:/tmp
+    # Ограничение ресурсов
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+volumes:
+  book-cache:
+    driver: local

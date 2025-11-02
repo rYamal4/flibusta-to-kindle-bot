@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.2.21"
+    application
 }
 
 group = "io.github.ryamal4"
@@ -23,9 +24,22 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
+application {
+    mainClass.set("io.github.ryamal4.MainKt")
+}
+
 tasks.test {
     useJUnitPlatform()
 }
+
 kotlin {
     jvmToolchain(21)
+}
+
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = "io.github.ryamal4.MainKt"
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
 }
