@@ -113,8 +113,12 @@ class FlibustaClient(val flibustaUrl: String) : IFlibustaClient {
         val rawTitle = titleElement?.text() ?: ""
         val title = rawTitle.replace(Regex("""\s*\((fb2|epub|mobi|pdf|doc|txt|djvu|rtf)\)\s*$"""), "")
 
-        val contentArea = document.select("#main").first() ?: document
-        val authorLink = contentArea.select("a[href^=/a/]").first()
+        // Ищем ссылку на автора, исключая навигационные ссылки в квадратных скобках
+        val authorLink = document.select("#main a[href^=/a/]")
+            .firstOrNull { link ->
+                val text = link.text()
+                !text.startsWith("[") && !text.endsWith("]") && link.attr("href") != "/a/all"
+            }
         val author = authorLink?.text() ?: ""
 
         val annotationHeader = document.select("h2").find { it.text().contains("Аннотация") }
