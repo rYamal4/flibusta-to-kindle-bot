@@ -60,16 +60,27 @@ class FlibustaClient(val flibustaUrl: String) : IFlibustaClient {
             val bookBytes = response.bodyAsChannel().toInputStream().readBytes()
             log.info { "Downloaded book with id $id" }
 
+            // Получаем информацию о книге для формирования имени файла
+            val bookInfo = getBookInfo(id)
+            val fileName = sanitizeFileName("${bookInfo.summary.title} - ${bookInfo.summary.author}.epub")
+
             val booksDir = Files.createTempDirectory("books")
-            val bookFile = booksDir / "$id.epub"
+            val bookFile = booksDir / fileName
 
             Files.write(bookFile, bookBytes)
 
-            // TODO rename downloaded book to title - author format
             bookFile
         }.also {
             client.close()
         }.getOrThrow()
+    }
+
+    private fun sanitizeFileName(fileName: String): String {
+        // Заменяем символы, недопустимые в именах файлов
+        return fileName.replace(Regex("[<>:\"/\\\\|?*]"), "_")
+            .replace(Regex("\\s+"), " ")
+            .trim()
+            .take(200) // Ограничиваем длину имени файла
     }
 
     private fun parseBookSearchResults(html: String): List<BookSummary> {
