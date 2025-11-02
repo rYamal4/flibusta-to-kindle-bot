@@ -13,18 +13,19 @@ import mu.KotlinLogging
 import org.jsoup.Jsoup
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.UUID
 import kotlin.io.path.div
 
 class FlibustaClient(val flibustaUrl: String) : IFlibustaClient {
+    private val oneHourInMillis = 3600000;
     private val log = KotlinLogging.logger {  }
-    private val searchSessions = mutableMapOf<String, SearchSession>()
-
-    companion object {
-        const val PAGE_SIZE = 5
-    }
+    private val searchCache = mutableMapOf<String, SearchResult>()
 
     override suspend fun getBooks(title: String): List<BookSummary> {
+        getFromCache(title)?.let {
+            log.info { "returned search result from cache" }
+            return it
+        }
+
         val client = HttpClient(CIO)
 
         return runCatching {
@@ -34,7 +35,9 @@ class FlibustaClient(val flibustaUrl: String) : IFlibustaClient {
             }
             val html = response.bodyAsText()
 
-            parseBookSearchResults(html)
+            val results = parseBookSearchResults(html)
+            searchCache[title] = SearchResult(title, results)
+            results
         }.also {
             client.close()
         }.getOrElse {
@@ -43,31 +46,34 @@ class FlibustaClient(val flibustaUrl: String) : IFlibustaClient {
         }
     }
 
-    override suspend fun getBookInfo(id: Int): FullBookInfo {
+    override suspend fun getSequnceBooks(sequenceId: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getBookInfo(bookId: Int): FullBookInfo {
         val client = HttpClient(CIO)
 
         return runCatching {
-            log.info { "Getting book info for id: $id" }
-            val response = client.get("$flibustaUrl/b/$id")
+            log.info { "Getting book info for id: $bookId" }
+            val response = client.get("$flibustaUrl/b/$bookId")
             val html = response.bodyAsText()
 
-            parseBookPage(html, id)
+            parseBookPage(html, bookId)
         }.also {
             client.close()
         }.getOrThrow()
     }
 
-    override suspend fun downloadBook(id: Int): Path {
+    override suspend fun downloadBook(bookId: Int): Path {
         val client = HttpClient(CIO)
-        val url = "${flibustaUrl}/b/$id/epub"
+        val url = "${flibustaUrl}/b/$bookId/epub"
 
         return this.runCatching {
             val response = client.get(url)
             val bookBytes = response.bodyAsChannel().toInputStream().readBytes()
-            log.info { "Downloaded book with id $id" }
+            log.info { "Downloaded book with id $bookId" }
 
-            // Получаем информацию о книге для формирования имени файла
-            val bookInfo = getBookInfo(id)
+            val bookInfo = getBookInfo(bookId)
             val fileName = sanitizeFileName("${bookInfo.summary.title} - ${bookInfo.summary.author}.epub")
 
             val booksDir = Files.createTempDirectory("books")
@@ -82,11 +88,10 @@ class FlibustaClient(val flibustaUrl: String) : IFlibustaClient {
     }
 
     private fun sanitizeFileName(fileName: String): String {
-        // Заменяем символы, недопустимые в именах файлов
         return fileName.replace(Regex("[<>:\"/\\\\|?*]"), "_")
             .replace(Regex("\\s+"), " ")
             .trim()
-            .take(200) // Ограничиваем длину имени файла
+            .take(200)
     }
 
     private fun parseBookSearchResults(html: String): List<BookSummary> {
@@ -130,7 +135,6 @@ class FlibustaClient(val flibustaUrl: String) : IFlibustaClient {
         val rawTitle = titleElement?.text() ?: ""
         val title = rawTitle.replace(Regex("""\s*\((fb2|epub|mobi|pdf|doc|txt|djvu|rtf)\)\s*$"""), "")
 
-        // Ищем ссылку на автора, исключая навигационные ссылки в квадратных скобках
         val authorLink = document.select("#main a[href^=/a/]")
             .firstOrNull { link ->
                 val text = link.text()
@@ -168,26 +172,18 @@ class FlibustaClient(val flibustaUrl: String) : IFlibustaClient {
         )
     }
 
-    fun createSearchSession(query: String, results: List<BookSummary>): String {
-        cleanupOldSessions()
-        val sessionId = UUID.randomUUID().toString().take(8)
-        searchSessions[sessionId] = SearchSession(query, results)
-        log.info { "Created search session $sessionId for query '$query' with ${results.size} results" }
-        return sessionId
-    }
+    private fun getFromCache(title: String): List<BookSummary>? {
+        val searchResult = searchCache[title]
+        val currentTime = System.currentTimeMillis()
 
-    fun getSearchSession(sessionId: String): SearchSession? {
-        return searchSessions[sessionId]
-    }
-
-    fun cleanupOldSessions() {
-        val now = System.currentTimeMillis()
-        val timeout = 3600_000L
-        val before = searchSessions.size
-        searchSessions.entries.removeIf { now - it.value.timestamp > timeout }
-        val after = searchSessions.size
-        if (before != after) {
-            log.info { "Cleaned up ${before - after} old search sessions" }
+        if (searchResult != null) {
+            if (currentTime - searchResult.timestamp < oneHourInMillis) {
+                searchResult.results
+            } else {
+                searchCache.remove(title)
+            }
         }
+
+        return null
     }
 }

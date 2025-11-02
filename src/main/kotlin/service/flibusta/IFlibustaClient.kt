@@ -7,7 +7,9 @@ import java.nio.file.Path
 interface IFlibustaClient {
     suspend fun getBooks(title: String): List<BookSummary>
 
-    suspend fun getBookInfo(id: Int): FullBookInfo
+    suspend fun getSequnceBooks(sequenceId: Int)
 
-    suspend fun downloadBook(id: Int): Path
+    suspend fun getBookInfo(bookId: Int): FullBookInfo
+
+    suspend fun downloadBook(bookId: Int): Path
 }
