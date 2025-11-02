@@ -12,9 +12,7 @@ services:
     environment:
       - TZ=Europe/Moscow
     volumes:
-      # Монтируем директорию для временных файлов книг
       - book-cache:/tmp
-    # Ограничение ресурсов
     deploy:
       resources:
         limits:
