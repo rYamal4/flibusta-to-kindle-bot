@@ -2,7 +2,7 @@ package io.github.ryamal4
 
 import io.github.ryamal4.bot.SendToKindleBot
 import io.github.ryamal4.config.BotConfiguration
-import io.github.ryamal4.service.FlibustaClient
+import io.github.ryamal4.service.flibusta.FlibustaClient
 import io.github.ryamal4.service.KindleService
 import mu.KotlinLogging
 

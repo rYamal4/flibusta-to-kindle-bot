@@ -1,4 +1,4 @@
-package io.github.ryamal4.service
+package io.github.ryamal4.service.flibusta
 
 import io.github.ryamal4.model.BookSummary
 import io.github.ryamal4.model.FullBookInfo
@@ -13,10 +13,16 @@ import mu.KotlinLogging
 import org.jsoup.Jsoup
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.UUID
 import kotlin.io.path.div
 
 class FlibustaClient(val flibustaUrl: String) : IFlibustaClient {
     private val log = KotlinLogging.logger {  }
+    private val searchSessions = mutableMapOf<String, SearchSession>()
+
+    companion object {
+        const val PAGE_SIZE = 5
+    }
 
     override suspend fun getBooks(title: String): List<BookSummary> {
         val client = HttpClient(CIO)
@@ -160,5 +166,28 @@ class FlibustaClient(val flibustaUrl: String) : IFlibustaClient {
             annotation = annotation,
             pagesCount = pagesCount
         )
+    }
+
+    fun createSearchSession(query: String, results: List<BookSummary>): String {
+        cleanupOldSessions()
+        val sessionId = UUID.randomUUID().toString().take(8)
+        searchSessions[sessionId] = SearchSession(query, results)
+        log.info { "Created search session $sessionId for query '$query' with ${results.size} results" }
+        return sessionId
+    }
+
+    fun getSearchSession(sessionId: String): SearchSession? {
+        return searchSessions[sessionId]
+    }
+
+    fun cleanupOldSessions() {
+        val now = System.currentTimeMillis()
+        val timeout = 3600_000L
+        val before = searchSessions.size
+        searchSessions.entries.removeIf { now - it.value.timestamp > timeout }
+        val after = searchSessions.size
+        if (before != after) {
+            log.info { "Cleaned up ${before - after} old search sessions" }
+        }
     }
 }

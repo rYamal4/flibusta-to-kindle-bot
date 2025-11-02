@@ -8,9 +8,10 @@ import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.InlineKeyboardMarkup
 import com.github.kotlintelegrambot.entities.keyboard.InlineKeyboardButton
-import io.github.ryamal4.service.FlibustaClient
+import io.github.ryamal4.service.flibusta.FlibustaClient
 import io.github.ryamal4.config.BotConfiguration
 import io.github.ryamal4.service.KindleService
+import io.github.ryamal4.model.BookSummary
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 
@@ -73,26 +74,20 @@ class SendToKindleBot(
                             return@runBlocking
                         }
 
-                        books.take(10).forEach { book ->
-                            val keyboard = InlineKeyboardMarkup.create(
-                                listOf(
-                                    InlineKeyboardButton.CallbackData(
-                                        text = "Инфо",
-                                        callbackData = "info_${book.id}"
-                                    ),
-                                    InlineKeyboardButton.CallbackData(
-                                        text = "На Kindle",
-                                        callbackData = "send_${book.id}"
-                                    )
-                                )
-                            )
+                        val sessionId = flibustaClient.createSearchSession(query, books)
 
-                            bot.sendMessage(
-                                chatId = ChatId.fromId(message.chat.id),
-                                text = "${book.title}\nАвтор: ${book.author}\nID: ${book.id}",
-                                replyMarkup = keyboard
-                            )
-                        }
+                        val page = 0
+                        val totalPages = (books.size + FlibustaClient.PAGE_SIZE - 1) / FlibustaClient.PAGE_SIZE
+                        val booksOnPage = books.take(FlibustaClient.PAGE_SIZE)
+
+                        val messageText = formatBooksPage(query, page, totalPages, books.size)
+                        val keyboard = createPaginationKeyboard(sessionId, page, totalPages, booksOnPage)
+
+                        bot.sendMessage(
+                            chatId = ChatId.fromId(message.chat.id),
+                            text = messageText,
+                            replyMarkup = keyboard
+                        )
                     } catch (e: Exception) {
                         log.error(e) { "Error searching for books" }
                         bot.sendMessage(
@@ -220,26 +215,20 @@ class SendToKindleBot(
                             return@runBlocking
                         }
 
-                        books.take(10).forEach { book ->
-                            val keyboard = InlineKeyboardMarkup.create(
-                                listOf(
-                                    InlineKeyboardButton.CallbackData(
-                                        text = "Инфо",
-                                        callbackData = "info_${book.id}"
-                                    ),
-                                    InlineKeyboardButton.CallbackData(
-                                        text = "На Kindle",
-                                        callbackData = "send_${book.id}"
-                                    )
-                                )
-                            )
+                        val sessionId = flibustaClient.createSearchSession(query, books)
 
-                            bot.sendMessage(
-                                chatId = ChatId.fromId(message.chat.id),
-                                text = "${book.title}\nАвтор: ${book.author}\nID: ${book.id}",
-                                replyMarkup = keyboard
-                            )
-                        }
+                        val page = 0
+                        val totalPages = (books.size + FlibustaClient.PAGE_SIZE - 1) / FlibustaClient.PAGE_SIZE
+                        val booksOnPage = books.take(FlibustaClient.PAGE_SIZE)
+
+                        val messageText = formatBooksPage(query, page, totalPages, books.size)
+                        val keyboard = createPaginationKeyboard(sessionId, page, totalPages, booksOnPage)
+
+                        bot.sendMessage(
+                            chatId = ChatId.fromId(message.chat.id),
+                            text = messageText,
+                            replyMarkup = keyboard
+                        )
                     } catch (e: Exception) {
                         log.error(e) { "Error searching for books" }
                         bot.sendMessage(
@@ -258,6 +247,99 @@ class SendToKindleBot(
 
                 val data = callbackQuery.data
                 when {
+                    data.startsWith("book_") -> {
+                        val parts = data.removePrefix("book_").split("_")
+                        if (parts.size == 3) {
+                            val sessionId = parts[0]
+                            val page = parts[1].toIntOrNull()
+                            val index = parts[2].toIntOrNull()
+
+                            val session = flibustaClient.getSearchSession(sessionId)
+                            if (session == null || page == null || index == null) {
+                                bot.sendMessage(
+                                    chatId = ChatId.fromId(callbackQuery.message?.chat?.id ?: return@callbackQuery),
+                                    text = "Поиск устарел, пожалуйста, повторите поиск"
+                                )
+                                return@callbackQuery
+                            }
+
+                            val bookIndexInResults = page * FlibustaClient.PAGE_SIZE + index
+                            if (bookIndexInResults >= session.results.size) {
+                                return@callbackQuery
+                            }
+
+                            val book = session.results[bookIndexInResults]
+                            runBlocking {
+                                try {
+                                    val bookInfo = flibustaClient.getBookInfo(book.id)
+                                    val messageText = """
+                                        ${bookInfo.summary.title}
+                                        Автор: ${bookInfo.summary.author}
+                                        ID: ${bookInfo.summary.id}
+                                        Страниц: ${bookInfo.pagesCount}
+
+                                        ${bookInfo.annotation}
+                                    """.trimIndent()
+
+                                    val keyboard = InlineKeyboardMarkup.create(
+                                        listOf(
+                                            InlineKeyboardButton.CallbackData(
+                                                text = "На Kindle",
+                                                callbackData = "send_${bookInfo.summary.id}"
+                                            )
+                                        )
+                                    )
+
+                                    bot.sendMessage(
+                                        chatId = ChatId.fromId(callbackQuery.message?.chat?.id ?: return@runBlocking),
+                                        text = messageText,
+                                        replyMarkup = keyboard
+                                    )
+                                } catch (e: Exception) {
+                                    log.error(e) { "Error getting book info" }
+                                }
+                            }
+                        }
+                    }
+                    data.startsWith("page_") -> {
+                        val parts = data.removePrefix("page_").split("_")
+                        if (parts.size == 2) {
+                            val sessionId = parts[0]
+                            val page = parts[1].toIntOrNull()
+
+                            val session = flibustaClient.getSearchSession(sessionId)
+                            if (session == null || page == null) {
+                                bot.sendMessage(
+                                    chatId = ChatId.fromId(callbackQuery.message?.chat?.id ?: return@callbackQuery),
+                                    text = "Поиск устарел, пожалуйста, повторите поиск"
+                                )
+                                return@callbackQuery
+                            }
+
+                            val totalPages = (session.results.size + FlibustaClient.PAGE_SIZE - 1) / FlibustaClient.PAGE_SIZE
+                            if (page < 0 || page >= totalPages) {
+                                return@callbackQuery
+                            }
+
+                            val booksOnPage = session.results.drop(page * FlibustaClient.PAGE_SIZE).take(FlibustaClient.PAGE_SIZE)
+                            val messageText = formatBooksPage(session.query, page, totalPages, session.results.size)
+                            val keyboard = createPaginationKeyboard(sessionId, page, totalPages, booksOnPage)
+
+                            val chatId = callbackQuery.message?.chat?.id ?: return@callbackQuery
+                            val messageId = callbackQuery.message?.messageId ?: return@callbackQuery
+
+                            bot.deleteMessage(ChatId.fromId(chatId), messageId)
+                            bot.sendMessage(
+                                chatId = ChatId.fromId(chatId),
+                                text = messageText,
+                                replyMarkup = keyboard
+                            )
+                            bot.answerCallbackQuery(callbackQuery.id)
+                        }
+                    }
+                    data == "noop" -> {
+                        bot.answerCallbackQuery(callbackQuery.id)
+                    }
                     data.startsWith("info_") -> {
                         val bookId = data.substringAfter("info_").toIntOrNull()
                         if (bookId != null) {
@@ -329,6 +411,66 @@ class SendToKindleBot(
                 }
             }
         }
+    }
+
+    private fun formatBooksPage(
+        query: String,
+        page: Int,
+        totalPages: Int,
+        totalBooks: Int
+    ): String {
+        return """
+            Результаты поиска: "$query"
+            Найдено книг: $totalBooks
+            Страница ${page + 1} из $totalPages
+        """.trimIndent()
+    }
+
+    private fun createPaginationKeyboard(
+        sessionId: String,
+        page: Int,
+        totalPages: Int,
+        books: List<BookSummary>
+    ): InlineKeyboardMarkup {
+        val bookButtons = books.mapIndexed { index, book ->
+            listOf(
+                InlineKeyboardButton.CallbackData(
+                    text = book.title,
+                    callbackData = "book_${sessionId}_${page}_$index"
+                )
+            )
+        }
+
+        val navigationButtons = mutableListOf<InlineKeyboardButton>()
+
+        if (page > 0) {
+            navigationButtons.add(
+                InlineKeyboardButton.CallbackData(
+                    text = "⬅️ Назад",
+                    callbackData = "page_${sessionId}_${page - 1}"
+                )
+            )
+        }
+
+        navigationButtons.add(
+            InlineKeyboardButton.CallbackData(
+                text = "${page + 1}/$totalPages",
+                callbackData = "noop"
+            )
+        )
+
+        if (page < totalPages - 1) {
+            navigationButtons.add(
+                InlineKeyboardButton.CallbackData(
+                    text = "Вперед ➡️",
+                    callbackData = "page_${sessionId}_${page + 1}"
+                )
+            )
+        }
+
+        return InlineKeyboardMarkup.create(
+            bookButtons + listOf(navigationButtons)
+        )
     }
 
     private fun isAuthorized(userId: Long?): Boolean {

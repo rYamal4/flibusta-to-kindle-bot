@@ -1,4 +1,4 @@
-package io.github.ryamal4.service
+package io.github.ryamal4.service.flibusta
 
 import io.github.ryamal4.model.BookSummary
 import io.github.ryamal4.model.FullBookInfo
