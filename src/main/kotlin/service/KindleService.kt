@@ -38,7 +38,13 @@ class KindleService(
             .buildMailer()
 
         withContext(dispatcher) {
-            mailer.sendMail(email)
+            runCatching {
+                mailer.sendMail(email)
+            }.onSuccess {
+                log.info { "book sent successfully" }
+            }.onFailure {
+                log.error { "error while sending book" }
+            }
         }
         log.info { "Book ${path.name} sent successfully to $kindleEmail" }
     }

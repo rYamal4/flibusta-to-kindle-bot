@@ -12,6 +12,7 @@ import com.github.kotlintelegrambot.entities.keyboard.InlineKeyboardButton
 import io.github.ryamal4.config.BotConfiguration
 import io.github.ryamal4.service.KindleService
 import io.github.ryamal4.model.BookSummary
+import io.github.ryamal4.model.BookSequence
 import io.github.ryamal4.service.flibusta.FlibustaClient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -70,21 +71,21 @@ class SendToKindleBot(
 
                 withContext(dispatcher) {
                     try {
-                        val books = flibustaClient.getBooks(query)
+                        val searchResults = flibustaClient.getBooks(query)
 
-                        if (books.isEmpty()) {
+                        if (searchResults.books.isEmpty() && searchResults.sequences.isEmpty()) {
                             bot.sendMessage(
                                 chatId = ChatId.fromId(message.chat.id),
-                                text = "Книги не найдены"
+                                text = "Ничего не найдено"
                             )
                             return@withContext
                         }
                         val page = 0
-                        val totalPages = (books.size + pageSize - 1) / pageSize
-                        val booksOnPage = books.take(pageSize)
+                        val totalPages = (searchResults.books.size + pageSize - 1) / pageSize
+                        val booksOnPage = searchResults.books.take(pageSize)
 
-                        val messageText = formatBooksPage(query, page, totalPages, books.size)
-                        val keyboard = createPaginationKeyboard(getIdForQuery(query), page, totalPages, booksOnPage)
+                        val messageText = formatBooksPage(query, page, totalPages, searchResults.books.size, searchResults.sequences.size)
+                        val keyboard = createPaginationKeyboard(getIdForQuery(query), page, totalPages, booksOnPage, searchResults.sequences)
 
                         bot.sendMessage(
                             chatId = ChatId.fromId(message.chat.id),
@@ -208,22 +209,22 @@ class SendToKindleBot(
 
                 withContext(dispatcher) {
                     try {
-                        val books = flibustaClient.getBooks(query)
+                        val searchResults = flibustaClient.getBooks(query)
 
-                        if (books.isEmpty()) {
+                        if (searchResults.books.isEmpty() && searchResults.sequences.isEmpty()) {
                             bot.sendMessage(
                                 chatId = ChatId.fromId(message.chat.id),
-                                text = "Книги не найдены"
+                                text = "Ничего не найдено"
                             )
                             return@withContext
                         }
 
                         val page = 0
-                        val totalPages = (books.size + pageSize - 1) / pageSize
-                        val booksOnPage = books.take(pageSize)
+                        val totalPages = (searchResults.books.size + pageSize - 1) / pageSize
+                        val booksOnPage = searchResults.books.take(pageSize)
 
-                        val messageText = formatBooksPage(query, page, totalPages, books.size)
-                        val keyboard = createPaginationKeyboard(getIdForQuery(query), page, totalPages, booksOnPage)
+                        val messageText = formatBooksPage(query, page, totalPages, searchResults.books.size, searchResults.sequences.size)
+                        val keyboard = createPaginationKeyboard(getIdForQuery(query), page, totalPages, booksOnPage, searchResults.sequences)
 
                         bot.sendMessage(
                             chatId = ChatId.fromId(message.chat.id),
@@ -262,7 +263,16 @@ class SendToKindleBot(
                             }
 
                             val books = withContext(dispatcher) {
-                                flibustaClient.getBooks(searchQuery)
+                                if (searchQuery.startsWith("seq:")) {
+                                    val sequenceId = searchQuery.substringAfter("seq:").toIntOrNull()
+                                    if (sequenceId != null) {
+                                        flibustaClient.getSequenceBooks(sequenceId)
+                                    } else {
+                                        emptyList()
+                                    }
+                                } else {
+                                    flibustaClient.getBooks(searchQuery).books
+                                }
                             }
                             val bookIndexInResults = page * pageSize + index
                             if (bookIndexInResults >= books.size) {
@@ -312,8 +322,18 @@ class SendToKindleBot(
                             if (searchQuery == null || page == null) {
                                 return@callbackQuery
                             }
+
                             val books = withContext(dispatcher) {
-                                flibustaClient.getBooks(searchQuery)
+                                if (searchQuery.startsWith("seq:")) {
+                                    val sequenceId = searchQuery.substringAfter("seq:").toIntOrNull()
+                                    if (sequenceId != null) {
+                                        flibustaClient.getSequenceBooks(sequenceId)
+                                    } else {
+                                        emptyList()
+                                    }
+                                } else {
+                                    flibustaClient.getBooks(searchQuery).books
+                                }
                             }
 
                             val totalPages = (books.size + pageSize - 1) / pageSize
@@ -322,7 +342,15 @@ class SendToKindleBot(
                             }
 
                             val booksOnPage = books.drop(page * pageSize).take(pageSize)
-                            val messageText = formatBooksPage(searchQuery, page, totalPages, books.size)
+                            val messageText = if (searchQuery.startsWith("seq:")) {
+                                """
+                                    Книги серии
+                                    Найдено книг: ${books.size}
+                                    Страница ${page + 1} из $totalPages
+                                """.trimIndent()
+                            } else {
+                                formatBooksPage(searchQuery, page, totalPages, books.size)
+                            }
                             val keyboard = createPaginationKeyboard(sessionId, page, totalPages, booksOnPage)
 
                             val chatId = callbackQuery.message?.chat?.id ?: return@callbackQuery
@@ -335,6 +363,48 @@ class SendToKindleBot(
                                 replyMarkup = keyboard
                             )
                             bot.answerCallbackQuery(callbackQuery.id)
+                        }
+                    }
+                    data.startsWith("sequence_") -> {
+                        val sequenceId = data.substringAfter("sequence_").toIntOrNull()
+                        if (sequenceId != null) {
+                            withContext(dispatcher) {
+                                try {
+                                    val books = flibustaClient.getSequenceBooks(sequenceId)
+
+                                    if (books.isEmpty()) {
+                                        bot.sendMessage(
+                                            chatId = ChatId.fromId(callbackQuery.message?.chat?.id ?: return@withContext),
+                                            text = "Книги в серии не найдены"
+                                        )
+                                        return@withContext
+                                    }
+
+                                    val page = 0
+                                    val totalPages = (books.size + pageSize - 1) / pageSize
+                                    val booksOnPage = books.take(pageSize)
+
+                                    val messageText = """
+                                        Книги серии
+                                        Найдено книг: ${books.size}
+                                        Страница ${page + 1} из $totalPages
+                                    """.trimIndent()
+
+                                    val keyboard = createPaginationKeyboard(getIdForQuery("seq:$sequenceId"), page, totalPages, booksOnPage)
+
+                                    bot.sendMessage(
+                                        chatId = ChatId.fromId(callbackQuery.message?.chat?.id ?: return@withContext),
+                                        text = messageText,
+                                        replyMarkup = keyboard
+                                    )
+                                } catch (e: Exception) {
+                                    log.error(e) { "Error getting sequence books" }
+                                    bot.sendMessage(
+                                        chatId = ChatId.fromId(callbackQuery.message?.chat?.id ?: return@withContext),
+                                        text = "Ошибка при получении книг серии: ${e.message}"
+                                    )
+                                }
+                            }
                         }
                     }
                     data == "noop" -> {
@@ -423,21 +493,42 @@ class SendToKindleBot(
         query: String,
         page: Int,
         totalPages: Int,
-        totalBooks: Int
+        totalBooks: Int,
+        totalSequences: Int = 0
     ): String {
-        return """
+        return if (totalSequences > 0) {
+            """
+            Результаты поиска: "$query"
+
+            Найдено серий: $totalSequences
+            Найдено книг: $totalBooks
+            Страница ${page + 1} из $totalPages
+            """.trimIndent()
+        } else {
+            """
             Результаты поиска: "$query"
             Найдено книг: $totalBooks
             Страница ${page + 1} из $totalPages
-        """.trimIndent()
+            """.trimIndent()
+        }
     }
 
     private fun createPaginationKeyboard(
         sessionId: String,
         page: Int,
         totalPages: Int,
-        books: List<BookSummary>
+        books: List<BookSummary>,
+        sequences: List<BookSequence> = emptyList()
     ): InlineKeyboardMarkup {
+        val sequenceButtons = sequences.mapIndexed { _, sequence ->
+            listOf(
+                InlineKeyboardButton.CallbackData(
+                    text = "${sequence.title} (${sequence.booksCount} книг)",
+                    callbackData = "sequence_${sequence.sequenceId}"
+                )
+            )
+        }
+
         val bookButtons = books.mapIndexed { index, book ->
             listOf(
                 InlineKeyboardButton.CallbackData(
@@ -475,7 +566,7 @@ class SendToKindleBot(
         }
 
         return InlineKeyboardMarkup.create(
-            bookButtons + listOf(navigationButtons)
+            sequenceButtons + bookButtons + listOf(navigationButtons)
         )
     }
 

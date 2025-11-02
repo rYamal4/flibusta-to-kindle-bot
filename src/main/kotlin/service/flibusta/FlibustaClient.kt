@@ -1,7 +1,9 @@
 package io.github.ryamal4.service.flibusta
 
 import io.github.ryamal4.model.BookSummary
+import io.github.ryamal4.model.BookSequence
 import io.github.ryamal4.model.FullBookInfo
+import io.github.ryamal4.model.SearchResults
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.get
@@ -20,10 +22,10 @@ class FlibustaClient(val flibustaUrl: String) : IFlibustaClient {
     private val log = KotlinLogging.logger {  }
     private val searchCache = mutableMapOf<String, SearchResult>()
 
-    override suspend fun getBooks(title: String): List<BookSummary> {
+    override suspend fun getBooks(title: String): SearchResults {
         getFromCache(title)?.let {
             log.info { "returned search result from cache" }
-            return it
+            return SearchResults(it.sequences, it.books)
         }
 
         val client = HttpClient(CIO)
@@ -35,19 +37,33 @@ class FlibustaClient(val flibustaUrl: String) : IFlibustaClient {
             }
             val html = response.bodyAsText()
 
-            val results = parseBookSearchResults(html)
-            searchCache[title] = SearchResult(title, results)
-            results
+            val sequences = parseSequences(html)
+            val books = parseBookSearchResults(html)
+            searchCache[title] = SearchResult(title, SearchResults(sequences, books))
+            SearchResults(sequences, books)
         }.also {
             client.close()
         }.getOrElse {
             log.error(it) { "Error while searching for books" }
-            emptyList()
+            SearchResults(emptyList(), emptyList())
         }
     }
 
-    override suspend fun getSequnceBooks(sequenceId: Int) {
-        TODO("Not yet implemented")
+    override suspend fun getSequenceBooks(sequenceId: Int): List<BookSummary> {
+        val client = HttpClient(CIO)
+
+        return runCatching {
+            log.info { "Getting books for sequence id: $sequenceId" }
+            val response = client.get("$flibustaUrl/sequence/$sequenceId")
+            val html = response.bodyAsText()
+
+            parseSequenceBooks(html)
+        }.also {
+            client.close()
+        }.getOrElse {
+            log.error(it) { "Error while getting sequence books" }
+            emptyList()
+        }
     }
 
     override suspend fun getBookInfo(bookId: Int): FullBookInfo {
@@ -172,18 +188,84 @@ class FlibustaClient(val flibustaUrl: String) : IFlibustaClient {
         )
     }
 
-    private fun getFromCache(title: String): List<BookSummary>? {
+    private fun getFromCache(title: String): SearchResult? {
         val searchResult = searchCache[title]
         val currentTime = System.currentTimeMillis()
 
         if (searchResult != null) {
             if (currentTime - searchResult.timestamp < oneHourInMillis) {
-                searchResult.results
+                return searchResult
             } else {
                 searchCache.remove(title)
             }
         }
 
         return null
+    }
+
+    private fun parseSequences(html: String): List<BookSequence> {
+        val document = Jsoup.parse(html)
+        val sequencesHeader = document.select("h3").find { it.text().contains("Найденные серии") }
+
+        if (sequencesHeader == null) {
+            log.warn { "No sequences found in HTML" }
+            return emptyList()
+        }
+
+        val sequencesList = sequencesHeader.nextElementSibling()
+        if (sequencesList == null || sequencesList.tagName() != "ul") {
+            log.warn { "Sequences list not found" }
+            return emptyList()
+        }
+
+        return sequencesList.select("li").mapNotNull { li ->
+            val link = li.select("a").firstOrNull() ?: return@mapNotNull null
+            val href = link.attr("href")
+            val sequenceId = href.substringAfter("/sequence/").toIntOrNull() ?: return@mapNotNull null
+
+            val text = li.text()
+            val booksCountMatch = Regex("""\((\d+) книг""").find(text)
+            val booksCount = booksCountMatch?.groupValues?.get(1)?.toIntOrNull() ?: 0
+
+            val title = link.text()
+
+            BookSequence(sequenceId = sequenceId, title = title, booksCount = booksCount)
+        }
+    }
+
+    private fun parseSequenceBooks(html: String): List<BookSummary> {
+        val document = Jsoup.parse(html)
+        val bookItems = document.select("input[type=checkbox][name^=bchk]")
+
+        return bookItems.mapNotNull { checkbox ->
+            var sibling = checkbox.nextSibling()
+            var bookLink: org.jsoup.nodes.Element? = null
+            var authorLink: org.jsoup.nodes.Element? = null
+
+            while (sibling != null) {
+                if (sibling is org.jsoup.nodes.Element) {
+                    if (sibling.tagName() == "br") {
+                        break
+                    }
+                    if (sibling.tagName() == "a") {
+                        val href = sibling.attr("href")
+                        if (href.startsWith("/b/") && bookLink == null) {
+                            bookLink = sibling
+                        } else if (href.startsWith("/a/") && authorLink == null) {
+                            authorLink = sibling
+                        }
+                    }
+                }
+                sibling = sibling.nextSibling()
+            }
+
+            if (bookLink == null) return@mapNotNull null
+
+            val bookId = bookLink.attr("href").substringAfter("/b/").toIntOrNull() ?: return@mapNotNull null
+            val bookTitle = bookLink.text()
+            val author = authorLink?.text() ?: ""
+
+            BookSummary(id = bookId, author = author, title = bookTitle)
+        }
     }
 }
