@@ -11,8 +11,6 @@ services:
       - .env
     environment:
       - TZ=Europe/Moscow
-    volumes:
-      - book-cache:/tmp
     deploy:
       resources:
         limits:
@@ -21,7 +19,3 @@ services:
         reservations:
           cpus: '0.5'
           memory: 256M
-
-volumes:
-  book-cache:
-    driver: local
