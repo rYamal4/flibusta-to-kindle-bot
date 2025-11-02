@@ -4,6 +4,7 @@ import com.github.kotlintelegrambot.bot
 import com.github.kotlintelegrambot.dispatch
 import com.github.kotlintelegrambot.dispatcher.command
 import com.github.kotlintelegrambot.dispatcher.callbackQuery
+import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.InlineKeyboardMarkup
 import com.github.kotlintelegrambot.entities.keyboard.InlineKeyboardButton
@@ -82,7 +83,7 @@ class SendToKindleBot(
 
                             bot.sendMessage(
                                 chatId = ChatId.fromId(message.chat.id),
-                                text = "${book.title}\nАвтор: ${book.author}",
+                                text = "${book.title}\nАвтор: ${book.author}\nID: ${book.id}",
                                 replyMarkup = keyboard
                             )
                         }
@@ -114,6 +115,7 @@ class SendToKindleBot(
                         val message = """
                             ${bookInfo.summary.title}
                             Автор: ${bookInfo.summary.author}
+                            ID: ${bookInfo.summary.id}
                             Страниц: ${bookInfo.pagesCount}
 
                             ${bookInfo.annotation}
@@ -175,6 +177,54 @@ class SendToKindleBot(
                 }
             }
 
+            text {
+                if (!isAuthorized(message.from?.id)) return@text
+
+                val query = text.trim()
+                if (query.isEmpty()) return@text
+
+                runBlocking {
+                    try {
+                        val books = flibustaClient.getBooks(query)
+
+                        if (books.isEmpty()) {
+                            bot.sendMessage(
+                                chatId = ChatId.fromId(message.chat.id),
+                                text = "Книги не найдены"
+                            )
+                            return@runBlocking
+                        }
+
+                        books.take(10).forEach { book ->
+                            val keyboard = InlineKeyboardMarkup.create(
+                                listOf(
+                                    InlineKeyboardButton.CallbackData(
+                                        text = "Инфо",
+                                        callbackData = "info_${book.id}"
+                                    ),
+                                    InlineKeyboardButton.CallbackData(
+                                        text = "На Kindle",
+                                        callbackData = "send_${book.id}"
+                                    )
+                                )
+                            )
+
+                            bot.sendMessage(
+                                chatId = ChatId.fromId(message.chat.id),
+                                text = "${book.title}\nАвтор: ${book.author}\nID: ${book.id}",
+                                replyMarkup = keyboard
+                            )
+                        }
+                    } catch (e: Exception) {
+                        log.error(e) { "Error searching for books" }
+                        bot.sendMessage(
+                            chatId = ChatId.fromId(message.chat.id),
+                            text = "Ошибка при поиске: ${e.message}"
+                        )
+                    }
+                }
+            }
+
             callbackQuery {
                 if (!isAuthorized(callbackQuery.from.id)) return@callbackQuery
 
@@ -186,9 +236,10 @@ class SendToKindleBot(
                             runBlocking {
                                 try {
                                     val bookInfo = flibustaClient.getBookInfo(bookId)
-                                    val message = """
+                                    val messageText = """
                                         ${bookInfo.summary.title}
                                         Автор: ${bookInfo.summary.author}
+                                        ID: ${bookInfo.summary.id}
                                         Страниц: ${bookInfo.pagesCount}
 
                                         ${bookInfo.annotation}
@@ -196,7 +247,7 @@ class SendToKindleBot(
 
                                     bot.sendMessage(
                                         chatId = ChatId.fromId(callbackQuery.message?.chat?.id ?: return@runBlocking),
-                                        text = message
+                                        text = messageText
                                     )
                                 } catch (e: Exception) {
                                     log.error(e) { "Error getting book info" }
