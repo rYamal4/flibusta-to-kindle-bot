@@ -31,7 +31,7 @@ class KindleService(
 
         val mailer = MailerBuilder
             .withSMTPServer(host, port, senderEmail, senderPassword)
-            .withTransportStrategy(TransportStrategy.SMTP_TLS)
+            .withTransportStrategy(TransportStrategy.SMTP)
             .buildMailer()
 
         mailer.sendMail(email)
