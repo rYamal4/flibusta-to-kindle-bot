@@ -14,7 +14,6 @@ import io.github.ryamal4.service.KindleService
 import io.github.ryamal4.model.BookSummary
 import io.github.ryamal4.service.flibusta.FlibustaClient
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import java.util.UUID
@@ -23,7 +22,7 @@ class SendToKindleBot(
     private val config: BotConfiguration,
     private val flibustaClient: FlibustaClient,
     private val kindleService: KindleService,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher
 ) {
     private val pageSize = 5
     private val searchSessions = mutableMapOf<String, String>()

@@ -4,10 +4,12 @@ import io.github.ryamal4.bot.SendToKindleBot
 import io.github.ryamal4.config.BotConfiguration
 import io.github.ryamal4.service.flibusta.FlibustaClient
 import io.github.ryamal4.service.KindleService
+import kotlinx.coroutines.Dispatchers
 import mu.KotlinLogging
 
 fun main() {
     val log = KotlinLogging.logger {}
+    val dispatcher = Dispatchers.IO
 
     try {
         log.info { "Loading configuration from environment variables..." }
@@ -21,11 +23,12 @@ fun main() {
             smtp = config.smtp,
             senderEmail = config.senderEmail,
             senderPassword = config.senderPassword,
-            kindleEmail = config.kindleEmail
+            kindleEmail = config.kindleEmail,
+            dispatcher = dispatcher
         )
 
         log.info { "Creating Telegram bot..." }
-        val bot = SendToKindleBot(config, flibustaClient, kindleService)
+        val bot = SendToKindleBot(config, flibustaClient, kindleService, dispatcher)
 
         Runtime.getRuntime().addShutdownHook(Thread {
             log.info { "Shutting down bot..." }
