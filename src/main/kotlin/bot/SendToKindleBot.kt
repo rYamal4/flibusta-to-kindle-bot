@@ -121,9 +121,19 @@ class SendToKindleBot(
                             ${bookInfo.annotation}
                         """.trimIndent()
 
+                        val keyboard = InlineKeyboardMarkup.create(
+                            listOf(
+                                InlineKeyboardButton.CallbackData(
+                                    text = "На Kindle",
+                                    callbackData = "send_${bookInfo.summary.id}"
+                                )
+                            )
+                        )
+
                         bot.sendMessage(
                             chatId = ChatId.fromId(this@command.message.chat.id),
-                            text = message
+                            text = message,
+                            replyMarkup = keyboard
                         )
                     } catch (e: Exception) {
                         log.error(e) { "Error getting book info" }
@@ -245,9 +255,19 @@ class SendToKindleBot(
                                         ${bookInfo.annotation}
                                     """.trimIndent()
 
+                                    val keyboard = InlineKeyboardMarkup.create(
+                                        listOf(
+                                            InlineKeyboardButton.CallbackData(
+                                                text = "На Kindle",
+                                                callbackData = "send_${bookInfo.summary.id}"
+                                            )
+                                        )
+                                    )
+
                                     bot.sendMessage(
                                         chatId = ChatId.fromId(callbackQuery.message?.chat?.id ?: return@runBlocking),
-                                        text = messageText
+                                        text = messageText,
+                                        replyMarkup = keyboard
                                     )
                                 } catch (e: Exception) {
                                     log.error(e) { "Error getting book info" }
