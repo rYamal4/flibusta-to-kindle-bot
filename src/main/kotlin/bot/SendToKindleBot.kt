@@ -26,7 +26,10 @@ class SendToKindleBot(
 
         dispatch {
             command("start") {
-                if (!isAuthorized(message.from?.id)) return@command
+                if (!isAuthorized(message.from?.id)) {
+                    sendUnauthorizedMessage(message.chat.id)
+                    return@command
+                }
 
                 val welcomeMessage = """
                     Привет! Это бот для отправки книг на Kindle.
@@ -44,7 +47,10 @@ class SendToKindleBot(
             }
 
             command("search") {
-                if (!isAuthorized(message.from?.id)) return@command
+                if (!isAuthorized(message.from?.id)) {
+                    sendUnauthorizedMessage(message.chat.id)
+                    return@command
+                }
 
                 val query = args.joinToString(" ")
                 if (query.isEmpty()) {
@@ -98,7 +104,10 @@ class SendToKindleBot(
             }
 
             command("info") {
-                if (!isAuthorized(message.from?.id)) return@command
+                if (!isAuthorized(message.from?.id)) {
+                    sendUnauthorizedMessage(message.chat.id)
+                    return@command
+                }
 
                 val bookId = args.firstOrNull()?.toIntOrNull()
                 if (bookId == null) {
@@ -146,7 +155,10 @@ class SendToKindleBot(
             }
 
             command("send") {
-                if (!isAuthorized(message.from?.id)) return@command
+                if (!isAuthorized(message.from?.id)) {
+                    sendUnauthorizedMessage(message.chat.id)
+                    return@command
+                }
 
                 val bookId = args.firstOrNull()?.toIntOrNull()
                 if (bookId == null) {
@@ -188,7 +200,10 @@ class SendToKindleBot(
             }
 
             text {
-                if (!isAuthorized(message.from?.id)) return@text
+                if (!isAuthorized(message.from?.id)) {
+                    sendUnauthorizedMessage(message.chat.id)
+                    return@text
+                }
 
                 val query = text.trim()
                 if (query.isEmpty()) return@text
@@ -236,7 +251,10 @@ class SendToKindleBot(
             }
 
             callbackQuery {
-                if (!isAuthorized(callbackQuery.from.id)) return@callbackQuery
+                if (!isAuthorized(callbackQuery.from.id)) {
+                    callbackQuery.message?.chat?.id?.let { sendUnauthorizedMessage(it) }
+                    return@callbackQuery
+                }
 
                 val data = callbackQuery.data
                 when {
@@ -315,6 +333,18 @@ class SendToKindleBot(
 
     private fun isAuthorized(userId: Long?): Boolean {
         return userId == config.telegramUserId
+    }
+
+    private fun sendUnauthorizedMessage(chatId: Long) {
+        bot.sendMessage(
+            chatId = ChatId.fromId(chatId),
+            text = """
+                Этот бот доступен только для владельца.
+
+                Вы можете развернуть свою копию бота:
+                https://github.com/rYamal4/flibusta-to-kindle-bot
+            """.trimIndent()
+        )
     }
 
     fun start() {
