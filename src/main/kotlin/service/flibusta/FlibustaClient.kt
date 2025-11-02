@@ -24,78 +24,111 @@ class FlibustaClient(val flibustaUrl: String) : IFlibustaClient {
 
     override suspend fun getBooks(title: String): SearchResults {
         getFromCache(title)?.let {
-            log.info { "returned search result from cache" }
+            log.info { "Cache hit for search '$title': ${it.books.size} books, ${it.sequences.size} sequences" }
             return SearchResults(it.sequences, it.books)
         }
 
+        log.info { "Cache miss - searching for books with title: '$title'" }
         val client = HttpClient(CIO)
+        val startTime = System.currentTimeMillis()
 
         return runCatching {
-            log.info { "Searching for books with title: $title" }
             val response = client.get("$flibustaUrl/booksearch") {
                 parameter("ask", title)
             }
+            val requestDuration = System.currentTimeMillis() - startTime
+            log.debug { "HTTP request for '$title' completed in ${requestDuration}ms" }
+
             val html = response.bodyAsText()
+            val parseStartTime = System.currentTimeMillis()
 
             val sequences = parseSequences(html)
             val books = parseBookSearchResults(html)
+            val parseDuration = System.currentTimeMillis() - parseStartTime
+
+            log.info { "Search '$title' found ${books.size} books and ${sequences.size} sequences (parse time: ${parseDuration}ms)" }
+
             searchCache[title] = SearchResult(title, SearchResults(sequences, books))
+            log.debug { "Cached search results for '$title' (cache size: ${searchCache.size})" }
+
             SearchResults(sequences, books)
         }.also {
             client.close()
         }.getOrElse {
-            log.error(it) { "Error while searching for books" }
+            log.error(it) { "Error while searching for '$title'" }
             SearchResults(emptyList(), emptyList())
         }
     }
 
     override suspend fun getSequenceBooks(sequenceId: Int): List<BookSummary> {
+        log.info { "Getting books for sequence id: $sequenceId" }
         val client = HttpClient(CIO)
+        val startTime = System.currentTimeMillis()
 
         return runCatching {
-            log.info { "Getting books for sequence id: $sequenceId" }
             val response = client.get("$flibustaUrl/sequence/$sequenceId")
-            val html = response.bodyAsText()
+            val requestDuration = System.currentTimeMillis() - startTime
+            log.debug { "HTTP request for sequence $sequenceId completed in ${requestDuration}ms" }
 
-            parseSequenceBooks(html)
+            val html = response.bodyAsText()
+            val parseStartTime = System.currentTimeMillis()
+
+            val books = parseSequenceBooks(html)
+            val parseDuration = System.currentTimeMillis() - parseStartTime
+
+            log.info { "Sequence $sequenceId contains ${books.size} books (parse time: ${parseDuration}ms)" }
+            books
         }.also {
             client.close()
         }.getOrElse {
-            log.error(it) { "Error while getting sequence books" }
+            log.error(it) { "Error while getting books for sequence $sequenceId" }
             emptyList()
         }
     }
 
     override suspend fun getBookInfo(bookId: Int): FullBookInfo {
+        log.info { "Getting book info for id: $bookId" }
         val client = HttpClient(CIO)
+        val startTime = System.currentTimeMillis()
 
         return runCatching {
-            log.info { "Getting book info for id: $bookId" }
             val response = client.get("$flibustaUrl/b/$bookId")
             val html = response.bodyAsText()
 
-            parseBookPage(html, bookId)
+            val bookInfo = parseBookPage(html, bookId)
+            val duration = System.currentTimeMillis() - startTime
+
+            log.info { "Retrieved info for book $bookId: '${bookInfo.summary.title}' (${duration}ms)" }
+            bookInfo
         }.also {
             client.close()
         }.getOrThrow()
     }
 
     override suspend fun downloadBook(bookId: Int): Path {
+        log.info { "Starting download for book $bookId" }
         val client = HttpClient(CIO)
         val url = "${flibustaUrl}/b/$bookId/epub"
+        val startTime = System.currentTimeMillis()
 
         return this.runCatching {
             val response = client.get(url)
             val bookBytes = response.bodyAsChannel().toInputStream().readBytes()
-            log.info { "Downloaded book with id $bookId" }
+            val downloadDuration = System.currentTimeMillis() - startTime
+            val fileSizeKB = bookBytes.size / 1024
+
+            log.info { "Downloaded book $bookId: ${fileSizeKB}KB in ${downloadDuration}ms" }
 
             val bookInfo = getBookInfo(bookId)
             val fileName = sanitizeFileName("${bookInfo.summary.title} - ${bookInfo.summary.author}.epub")
 
             val booksDir = Files.createTempDirectory("books")
+            log.debug { "Created temp directory: $booksDir" }
+
             val bookFile = booksDir / fileName
 
             Files.write(bookFile, bookBytes)
+            log.info { "Saved book $bookId to $bookFile" }
 
             bookFile
         }.also {
@@ -197,6 +230,8 @@ class FlibustaClient(val flibustaUrl: String) : IFlibustaClient {
                 return searchResult
             } else {
                 searchCache.remove(title)
+                val ageMinutes = (currentTime - searchResult.timestamp) / 60000
+                log.debug { "Removed expired cache entry for '$title' (age: ${ageMinutes} minutes, cache size: ${searchCache.size})" }
             }
         }
 

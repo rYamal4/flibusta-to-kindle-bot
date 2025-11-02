@@ -55,13 +55,16 @@ class SendToKindleBot(
             }
 
             command("search") {
-                if (!isAuthorized(message.from?.id)) {
+                val userId = message.from?.id
+                if (!isAuthorized(userId)) {
+                    log.warn { "Unauthorized search attempt by user $userId" }
                     sendUnauthorizedMessage(message.chat.id)
                     return@command
                 }
 
                 val query = args.joinToString(" ")
                 if (query.isEmpty()) {
+                    log.debug { "User $userId sent empty search query" }
                     bot.sendMessage(
                         chatId = ChatId.fromId(message.chat.id),
                         text = "Использование: /search <название книги>"
@@ -69,17 +72,22 @@ class SendToKindleBot(
                     return@command
                 }
 
+                log.info { "User $userId searching for: '$query'" }
+
                 withContext(dispatcher) {
                     try {
                         val searchResults = flibustaClient.getBooks(query)
 
                         if (searchResults.books.isEmpty() && searchResults.sequences.isEmpty()) {
+                            log.info { "Search '$query' returned no results" }
                             bot.sendMessage(
                                 chatId = ChatId.fromId(message.chat.id),
                                 text = "Ничего не найдено"
                             )
                             return@withContext
                         }
+                        log.info { "Search '$query' found ${searchResults.books.size} books and ${searchResults.sequences.size} sequences" }
+
                         val page = 0
                         val totalPages = (searchResults.books.size + pageSize - 1) / pageSize
                         val booksOnPage = searchResults.books.take(pageSize)
@@ -93,7 +101,7 @@ class SendToKindleBot(
                             replyMarkup = keyboard
                         )
                     } catch (e: Exception) {
-                        log.error(e) { "Error searching for books" }
+                        log.error(e) { "User $userId: Error searching for '$query'" }
                         bot.sendMessage(
                             chatId = ChatId.fromId(message.chat.id),
                             text = "Ошибка при поиске: ${e.message}"
@@ -103,13 +111,16 @@ class SendToKindleBot(
             }
 
             command("info") {
-                if (!isAuthorized(message.from?.id)) {
+                val userId = message.from?.id
+                if (!isAuthorized(userId)) {
+                    log.warn { "Unauthorized info attempt by user $userId" }
                     sendUnauthorizedMessage(message.chat.id)
                     return@command
                 }
 
                 val bookId = args.firstOrNull()?.toIntOrNull()
                 if (bookId == null) {
+                    log.debug { "User $userId sent invalid book_id for info command" }
                     bot.sendMessage(
                         chatId = ChatId.fromId(message.chat.id),
                         text = "Использование: /info <book_id>"
@@ -117,9 +128,13 @@ class SendToKindleBot(
                     return@command
                 }
 
+                log.info { "User $userId requesting info for book $bookId" }
+
                 withContext(dispatcher) {
                     try {
                         val bookInfo = flibustaClient.getBookInfo(bookId)
+                        log.info { "User $userId: Retrieved info for book $bookId: '${bookInfo.summary.title}'" }
+
                         val message = """
                             ${bookInfo.summary.title}
                             Автор: ${bookInfo.summary.author}
@@ -144,7 +159,7 @@ class SendToKindleBot(
                             replyMarkup = keyboard
                         )
                     } catch (e: Exception) {
-                        log.error(e) { "Error getting book info" }
+                        log.error(e) { "User $userId: Error getting info for book $bookId" }
                         bot.sendMessage(
                             chatId = ChatId.fromId(this@command.message.chat.id),
                             text = "Ошибка получения информации: ${e.message}"
@@ -154,19 +169,24 @@ class SendToKindleBot(
             }
 
             command("send") {
-                if (!isAuthorized(message.from?.id)) {
+                val userId = message.from?.id
+                if (!isAuthorized(userId)) {
+                    log.warn { "Unauthorized send attempt by user $userId" }
                     sendUnauthorizedMessage(message.chat.id)
                     return@command
                 }
 
                 val bookId = args.firstOrNull()?.toIntOrNull()
                 if (bookId == null) {
+                    log.debug { "User $userId sent invalid book_id for send command" }
                     bot.sendMessage(
                         chatId = ChatId.fromId(message.chat.id),
                         text = "Использование: /send <book_id>"
                     )
                     return@command
                 }
+
+                log.info { "User $userId: Starting send book $bookId to Kindle" }
 
                 withContext(dispatcher) {
                     try {
@@ -176,6 +196,7 @@ class SendToKindleBot(
                         )
 
                         val bookPath = flibustaClient.downloadBook(bookId)
+                        log.info { "User $userId: Downloaded book $bookId to ${bookPath}" }
 
                         bot.sendMessage(
                             chatId = ChatId.fromId(this@command.message.chat.id),
@@ -183,13 +204,14 @@ class SendToKindleBot(
                         )
 
                         kindleService.sendToKindle(bookPath)
+                        log.info { "User $userId: Successfully sent book $bookId to Kindle" }
 
                         bot.sendMessage(
                             chatId = ChatId.fromId(this@command.message.chat.id),
                             text = "Книга отправлена на Kindle!"
                         )
                     } catch (e: Exception) {
-                        log.error(e) { "Error sending book to Kindle" }
+                        log.error(e) { "User $userId: Error sending book $bookId to Kindle" }
                         bot.sendMessage(
                             chatId = ChatId.fromId(this@command.message.chat.id),
                             text = "Ошибка отправки: ${e.message}"
@@ -242,13 +264,15 @@ class SendToKindleBot(
             }
 
             callbackQuery {
-                if (!isAuthorized(callbackQuery.from.id)) {
+                val userId = callbackQuery.from.id
+                if (!isAuthorized(userId)) {
+                    log.warn { "Unauthorized callback query attempt by user $userId" }
                     callbackQuery.message?.chat?.id?.let { sendUnauthorizedMessage(it) }
                     return@callbackQuery
                 }
 
                 val data = callbackQuery.data
-                log.debug { "callback query $data" }
+                log.debug { "User $userId: Callback query '$data'" }
                 when {
                     data.startsWith("book_") -> {
                         val parts = data.removePrefix("book_").split("_")
@@ -259,6 +283,7 @@ class SendToKindleBot(
                             val index = parts[2].toIntOrNull()
 
                             if (searchQuery == null || page == null || index == null) {
+                                log.warn { "User $userId: Invalid book callback data - sessionId=$sessionId, page=$page, index=$index, query=$searchQuery" }
                                 return@callbackQuery
                             }
 
@@ -276,10 +301,13 @@ class SendToKindleBot(
                             }
                             val bookIndexInResults = page * pageSize + index
                             if (bookIndexInResults >= books.size) {
+                                log.warn { "User $userId: Invalid book index $bookIndexInResults (books.size=${books.size})" }
                                 return@callbackQuery
                             }
 
                             val book = books[bookIndexInResults]
+                            log.info { "User $userId: Selected book ${book.id} '${book.title}'" }
+
                             withContext(dispatcher) {
                                 try {
                                     val bookInfo = flibustaClient.getBookInfo(book.id)
@@ -320,6 +348,7 @@ class SendToKindleBot(
                             val page = parts[1].toIntOrNull()
 
                             if (searchQuery == null || page == null) {
+                                log.warn { "User $userId: Invalid page callback data - sessionId=$sessionId, page=$page, query=$searchQuery" }
                                 return@callbackQuery
                             }
 
@@ -338,8 +367,11 @@ class SendToKindleBot(
 
                             val totalPages = (books.size + pageSize - 1) / pageSize
                             if (page !in 0..<totalPages) {
+                                log.warn { "User $userId: Invalid page number $page (totalPages=$totalPages)" }
                                 return@callbackQuery
                             }
+
+                            log.debug { "User $userId: Navigating to page $page for query '$searchQuery'" }
 
                             val booksOnPage = books.drop(page * pageSize).take(pageSize)
                             val messageText = if (searchQuery.startsWith("seq:")) {
@@ -486,6 +518,7 @@ class SendToKindleBot(
     private fun getIdForQuery(query: String): String {
         val sessionId = UUID.randomUUID().toString()
         searchSessions[sessionId] = query
+        log.debug { "Created search session $sessionId for query: '$query'" }
         return sessionId
     }
 

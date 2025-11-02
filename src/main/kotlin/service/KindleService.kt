@@ -20,10 +20,16 @@ class KindleService(
     private val log = KotlinLogging.logger {  }
 
     override suspend fun sendToKindle(path: Path) {
-        log.info { "Sending book ${path.name} to Kindle email $kindleEmail" }
+        val fileSize = path.toFile().length()
+        val fileSizeKB = fileSize / 1024
+        log.info { "Preparing to send book ${path.name} (${fileSizeKB}KB) to $kindleEmail" }
+
         val (host, port) = smtp.split(":").let {
             it[0] to it[1].toInt()
         }
+        log.debug { "Connecting to SMTP server $host:$port" }
+
+        val startTime = System.currentTimeMillis()
 
         val email = EmailBuilder.startingBlank()
             .from(senderEmail)
@@ -41,11 +47,13 @@ class KindleService(
             runCatching {
                 mailer.sendMail(email)
             }.onSuccess {
-                log.info { "book sent successfully" }
-            }.onFailure {
-                log.error { "error while sending book" }
+                val duration = System.currentTimeMillis() - startTime
+                log.info { "Successfully sent ${path.name} (${fileSizeKB}KB) to $kindleEmail in ${duration}ms" }
+            }.onFailure { exception ->
+                val duration = System.currentTimeMillis() - startTime
+                log.error(exception) { "Failed to send ${path.name} to $kindleEmail after ${duration}ms" }
+                throw exception
             }
         }
-        log.info { "Book ${path.name} sent successfully to $kindleEmail" }
     }
 }
