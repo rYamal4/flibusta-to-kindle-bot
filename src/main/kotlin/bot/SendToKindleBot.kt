@@ -89,11 +89,15 @@ class SendToKindleBot(
                         log.info { "Search '$query' found ${searchResults.books.size} books and ${searchResults.sequences.size} sequences" }
 
                         val page = 0
-                        val totalPages = (searchResults.books.size + pageSize - 1) / pageSize
-                        val booksOnPage = searchResults.books.take(pageSize)
+                        val totalItems = searchResults.sequences.size + searchResults.books.size
+                        val totalPages = (totalItems + pageSize - 1) / pageSize
+
+                        val sequencesOnPage = if (page == 0) searchResults.sequences else emptyList()
+                        val booksStartIndex = maxOf(0, page * pageSize - searchResults.sequences.size)
+                        val booksOnPage = searchResults.books.drop(booksStartIndex).take(maxOf(0, pageSize - sequencesOnPage.size))
 
                         val messageText = formatBooksPage(query, page, totalPages, searchResults.books.size, searchResults.sequences.size)
-                        val keyboard = createPaginationKeyboard(getIdForQuery(query), page, totalPages, booksOnPage, searchResults.sequences)
+                        val keyboard = createPaginationKeyboard(getIdForQuery(query), page, totalPages, booksOnPage, sequencesOnPage)
 
                         bot.sendMessage(
                             chatId = ChatId.fromId(message.chat.id),
@@ -242,11 +246,15 @@ class SendToKindleBot(
                         }
 
                         val page = 0
-                        val totalPages = (searchResults.books.size + pageSize - 1) / pageSize
-                        val booksOnPage = searchResults.books.take(pageSize)
+                        val totalItems = searchResults.sequences.size + searchResults.books.size
+                        val totalPages = (totalItems + pageSize - 1) / pageSize
+
+                        val sequencesOnPage = if (page == 0) searchResults.sequences else emptyList()
+                        val booksStartIndex = maxOf(0, page * pageSize - searchResults.sequences.size)
+                        val booksOnPage = searchResults.books.drop(booksStartIndex).take(maxOf(0, pageSize - sequencesOnPage.size))
 
                         val messageText = formatBooksPage(query, page, totalPages, searchResults.books.size, searchResults.sequences.size)
-                        val keyboard = createPaginationKeyboard(getIdForQuery(query), page, totalPages, booksOnPage, searchResults.sequences)
+                        val keyboard = createPaginationKeyboard(getIdForQuery(query), page, totalPages, booksOnPage, sequencesOnPage)
 
                         bot.sendMessage(
                             chatId = ChatId.fromId(message.chat.id),
@@ -287,19 +295,22 @@ class SendToKindleBot(
                                 return@callbackQuery
                             }
 
-                            val books = withContext(dispatcher) {
+                            val (books, sequences) = withContext(dispatcher) {
                                 if (searchQuery.startsWith("seq:")) {
                                     val sequenceId = searchQuery.substringAfter("seq:").toIntOrNull()
                                     if (sequenceId != null) {
-                                        flibustaClient.getSequenceBooks(sequenceId)
+                                        flibustaClient.getSequenceBooks(sequenceId) to emptyList()
                                     } else {
-                                        emptyList()
+                                        emptyList<BookSummary>() to emptyList()
                                     }
                                 } else {
-                                    flibustaClient.getBooks(searchQuery).books
+                                    val results = flibustaClient.getBooks(searchQuery)
+                                    results.books to results.sequences
                                 }
                             }
-                            val bookIndexInResults = page * pageSize + index
+
+                            val booksStartIndex = maxOf(0, page * pageSize - sequences.size)
+                            val bookIndexInResults = booksStartIndex + index
                             if (bookIndexInResults >= books.size) {
                                 log.warn { "User $userId: Invalid book index $bookIndexInResults (books.size=${books.size})" }
                                 return@callbackQuery
@@ -352,20 +363,22 @@ class SendToKindleBot(
                                 return@callbackQuery
                             }
 
-                            val books = withContext(dispatcher) {
+                            val (books, sequences) = withContext(dispatcher) {
                                 if (searchQuery.startsWith("seq:")) {
                                     val sequenceId = searchQuery.substringAfter("seq:").toIntOrNull()
                                     if (sequenceId != null) {
-                                        flibustaClient.getSequenceBooks(sequenceId)
+                                        flibustaClient.getSequenceBooks(sequenceId) to emptyList()
                                     } else {
-                                        emptyList()
+                                        emptyList<BookSummary>() to emptyList()
                                     }
                                 } else {
-                                    flibustaClient.getBooks(searchQuery).books
+                                    val results = flibustaClient.getBooks(searchQuery)
+                                    results.books to results.sequences
                                 }
                             }
 
-                            val totalPages = (books.size + pageSize - 1) / pageSize
+                            val totalItems = sequences.size + books.size
+                            val totalPages = (totalItems + pageSize - 1) / pageSize
                             if (page !in 0..<totalPages) {
                                 log.warn { "User $userId: Invalid page number $page (totalPages=$totalPages)" }
                                 return@callbackQuery
@@ -373,7 +386,10 @@ class SendToKindleBot(
 
                             log.debug { "User $userId: Navigating to page $page for query '$searchQuery'" }
 
-                            val booksOnPage = books.drop(page * pageSize).take(pageSize)
+                            val sequencesOnPage = if (page == 0) sequences else emptyList()
+                            val booksStartIndex = maxOf(0, page * pageSize - sequences.size)
+                            val booksOnPage = books.drop(booksStartIndex).take(maxOf(0, pageSize - sequencesOnPage.size))
+
                             val messageText = if (searchQuery.startsWith("seq:")) {
                                 """
                                     Книги серии
@@ -381,9 +397,9 @@ class SendToKindleBot(
                                     Страница ${page + 1} из $totalPages
                                 """.trimIndent()
                             } else {
-                                formatBooksPage(searchQuery, page, totalPages, books.size)
+                                formatBooksPage(searchQuery, page, totalPages, books.size, sequences.size)
                             }
-                            val keyboard = createPaginationKeyboard(sessionId, page, totalPages, booksOnPage)
+                            val keyboard = createPaginationKeyboard(sessionId, page, totalPages, booksOnPage, sequencesOnPage)
 
                             val chatId = callbackQuery.message?.chat?.id ?: return@callbackQuery
                             val messageId = callbackQuery.message?.messageId ?: return@callbackQuery
@@ -422,7 +438,7 @@ class SendToKindleBot(
                                         Страница ${page + 1} из $totalPages
                                     """.trimIndent()
 
-                                    val keyboard = createPaginationKeyboard(getIdForQuery("seq:$sequenceId"), page, totalPages, booksOnPage)
+                                    val keyboard = createPaginationKeyboard(getIdForQuery("seq:$sequenceId"), page, totalPages, booksOnPage, emptyList())
 
                                     bot.sendMessage(
                                         chatId = ChatId.fromId(callbackQuery.message?.chat?.id ?: return@withContext),
