@@ -1,0 +1,810 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Поиск книг | Флибуста</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link href="/opds" type="application/atom+xml;profile=opds-catalog" rel="related"/>
+    <link rel="shortcut icon" href="/sites/default/files/bluebreeze_favicon.ico" type="image/x-icon"/>
+    <link rel="apple-touch-icon" href="/sites/default/files/bluebreeze_favicon.ico"/>
+    <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml"
+          title="Поиск книг на Флибусте"/>
+    <link type="text/css" rel="stylesheet" media="all"
+          href="/sites/default/files/css/css_541b6da58ae4dff17f932324504056f9.css"/>
+    <script type="text/javascript" src="/sites/default/files/js/js_65bd89c41ff1e065c43cc27e23c28553.js"></script>
+    <script type="text/javascript">
+        <!--//--><![CDATA[//><!--
+        jQuery.extend(Drupal.settings, {"basePath":"\/","CToolsUrlIsAjaxTrusted":{"\/booksearch?destination=booksearch%3Fask%3D%25D1%2582%25D0%25B5%25D1%2581%25D1%2582":true}});
+        //--><!]]>
+    </script>
+    <script type="text/javascript"></script>
+    <!--[if lt IE 7.]>
+    <script defer type="text/javascript" src="/pngfix.js"></script>
+    <![endif]-->
+    <meta name="referrer" content="origin-when-cross-origin"/>
+</head>
+
+<body id="second">
+<div id="page" class="one-sidebar">
+
+    <div id="header">
+
+        <div id="logo-title">
+
+            <a href="/" title="Главная">
+                <img src="/sites/default/files/bluebreeze_logo.png" alt="Главная" id="logo"/>
+            </a>
+
+            <h1 id='site-name'>
+                <a href="/" title="Главная">
+                    Флибуста </a>
+            </h1>
+
+
+            <div id='site-slogan'>
+                Книжное братство
+            </div>
+
+        </div>
+
+        <div class="menu withprimarywithsecondary">
+            <div id="primary" class="clear-block">
+                <ul class="links primary-links">
+                    <li class="menu-324 first"><a href="/node/68682" title="">Помощь и контакты</a></li>
+                    <li class="menu-280"><a href="/polka" title="">Книжная полка</a></li>
+                    <li class="menu-371"><a href="/blog" title="">Блоги</a></li>
+                    <li class="menu-306"><a href="/forum" title="">Форумы</a></li>
+                    <li class="menu-295"><a href="/node/4023" title="">Правила и ЧаВо</a></li>
+                    <li class="menu-287 last"><a href="/stat" title="">Статистика</a></li>
+                </ul>
+            </div>
+
+            <div id="secondary" class="clear-block">
+            </div>
+        </div>
+
+
+    </div>
+
+    <div id="container" class=" withright clear-block">
+
+        <div id="main-wrapper">
+            <div id="main" class="clear-block">
+                <div class="breadcrumb"><a href="/">Главная</a></div>
+                <div id="content-top">
+                    <div class="block block-librusec" id="block-librusec-abc">
+                        <div class="blockinner">
+
+
+                            <div class="content">
+                                <table width="100%" style="margin: 0px;">
+                                    <tbody style="border:none;">
+                                    <tr>
+                                        <td align="left"><a href="/a/all">[Все]</a> <a href='/Aa'>[А]</a> <a href='/Bb'>[Б]</a>
+                                            <a href='/V'>[В]</a> <a href='/Gg'>[Г]</a> <a href='/D'>[Д]</a> <a
+                                                    href='/E'>[Е]</a> <a href='/Zh'>[Ж]</a> <a href='/Z'>[З]</a> <a
+                                                    href='/I'>[И]</a> <a href='/Y'>[Й]</a> <a href='/K'>[К]</a> <a
+                                                    href='/L'>[Л]</a> <a href='/M'>[М]</a> <a href='/N'>[Н]</a> <a
+                                                    href='/O'>[О]</a> <a href='/P'>[П]</a> <a href='/R'>[Р]</a> <a
+                                                    href='/Ss'>[С]</a> <a href='/T'>[Т]</a> <a href='/U'>[У]</a> <a
+                                                    href='/F'>[Ф]</a> <a href='/H'>[Х]</a> <a href='/Tz'>[Ц]</a> <a
+                                                    href='/Ch'>[Ч]</a> <a href='/Sh'>[Ш]</a> <a href='/Sz'>[Щ]</a> <a
+                                                    href='/Ee'>[Э]</a> <a href='/Yu'>[Ю]</a> <a href='/Ya'>[Я]</a> <a
+                                                    href='/Other'>[Прочее]</a></td>
+                                        <td align="right"><a href="/rec">[Рекомендации сообщества]</a>&nbsp;&nbsp;&nbsp;<a
+                                                href="http://booktracker.org">[Книжный торрент]</a></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <h1 class="title">Поиск книг</h1>
+                <form action="/booksearch">Ищем: <input name="ask" size="50" value="тест">
+                    <input type=submit value="искать!"><br>
+                    <input type="checkbox" name="chs" checked>Серии
+                    <input type="checkbox" name="cha" checked>Авторы
+                    <input type="checkbox" name="chb" checked>Книги
+                    <input type="checkbox" name="chg">Жанры
+                    &nbsp; &nbsp; &nbsp; <a href="http://fbsearch.ru">Полнотекстовый поиск по книгам</a> (внешний
+                    ресурс)
+                </form>
+                <hr>
+                <br>
+                <div class="item-list">
+                    <ul class="pager">
+                        <li class="pager-current first">1</li>
+                        <li class="pager-item"><a href="/booksearch?page=1&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На страницу номер 2" class="active">2</a></li>
+                        <li class="pager-item"><a href="/booksearch?page=2&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На страницу номер 3" class="active">3</a></li>
+                        <li class="pager-item"><a href="/booksearch?page=3&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На страницу номер 4" class="active">4</a></li>
+                        <li class="pager-item"><a href="/booksearch?page=4&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На страницу номер 5" class="active">5</a></li>
+                        <li class="pager-item"><a href="/booksearch?page=5&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На страницу номер 6" class="active">6</a></li>
+                        <li class="pager-item"><a href="/booksearch?page=6&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На страницу номер 7" class="active">7</a></li>
+                        <li class="pager-item"><a href="/booksearch?page=7&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На страницу номер 8" class="active">8</a></li>
+                        <li class="pager-item"><a href="/booksearch?page=8&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На страницу номер 9" class="active">9</a></li>
+                        <li class="pager-ellipsis">…</li>
+                        <li class="pager-next"><a href="/booksearch?page=1&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На следующую страницу" class="active">следующая ›</a></li>
+                        <li class="pager-last last"><a href="/booksearch?page=14&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                       title="На последнюю страницу" class="active">последняя »</a></li>
+                    </ul>
+                </div>
+                <h3 style="margin-top: 10px; margin-bottom: 5px;"> Найденные серии (1 - 50 из 64):</h3>
+                <ul>
+                    <li><a href="/sequence/46651"><span style="background-color: #FFFCBB">Тест</span> на
+                        беременность</a> (2 книги)
+                    </li>
+                    <li><a href="/sequence/48687"><span style="background-color: #FFFCBB">Тест</span> на блондинку
+                        [антология]</a> (17 книг)
+                    </li>
+                    <li><a href="/sequence/54328"><span style="background-color: #FFFCBB">Тест</span> на респаун</a> (3
+                        книги)
+                    </li>
+                    <li><a href="/sequence/49680"><span style="background-color: #FFFCBB">Тест</span>ер</a> (2 книги)
+                    </li>
+                    <li><a href="/sequence/87657"><span style="background-color: #FFFCBB">Тест</span>ировщик миров
+                        (Копытин)</a> (2 книги)
+                    </li>
+                    <li><a href="/sequence/65039"><span style="background-color: #FFFCBB">Тест</span>ировщик миров
+                        [Перемолотов]</a> (2 книги)
+                    </li>
+                    <li><a href="/sequence/65693"><span style="background-color: #FFFCBB">Тест</span>овая группа</a> (6
+                        книг)
+                    </li>
+                    <li><a href="/sequence/67779"><span style="background-color: #FFFCBB">Тест</span>овый мир</a> (1
+                        книга)
+                    </li>
+                    <li><a href="/sequence/63409">Бета-<span style="background-color: #FFFCBB">тест</span>ер</a> (2
+                        книги)
+                    </li>
+                    <li><a href="/sequence/15371">Варяги [<span style="background-color: #FFFCBB">Тест</span>ов]</a> (3
+                        книги)
+                    </li>
+                    <li><a href="/sequence/93646">Рисуночные <span style="background-color: #FFFCBB">тест</span>ы</a> (1
+                        книга)
+                    </li>
+                    <li><a href="/sequence/70068">Из другого <span style="background-color: #FFFCBB">тест</span>а</a> (2
+                        книги)
+                    </li>
+                    <li><a href="/sequence/47908">Психологический практикум: <span style="background-color: #FFFCBB">тест</span>ы</a>
+                        (1 книга)
+                    </li>
+                    <li><a href="/sequence/105239">Удивительный мир. Веселые <span style="background-color: #FFFCBB">тест</span>ы
+                        обо всем на свете</a> (2 книги)
+                    </li>
+                    <li><a href="/sequence/5118">А<span style="background-color: #FFFCBB">тест</span>ат зрелости</a> (1
+                        книга)
+                    </li>
+                    <li><a href="/sequence/52711">Ес<span style="background-color: #FFFCBB">тест</span>венная история
+                        драконов</a> (6 книг)
+                    </li>
+                    <li><a href="/sequence/72782">Ес<span style="background-color: #FFFCBB">тест</span>венно-научная
+                        библиотека</a> (1 книга)
+                    </li>
+                    <li><a href="/sequence/17328">Ес<span style="background-color: #FFFCBB">тест</span>венно-научная
+                        библиотечка школьника</a> (1 книга)
+                    </li>
+                    <li><a href="/sequence/25264">Ес<span style="background-color: #FFFCBB">тест</span>венное
+                        убийство</a> (3 книги)
+                    </li>
+                    <li><a href="/sequence/64366">Ес<span style="background-color: #FFFCBB">тест</span>венные науки</a>
+                        (1 книга)
+                    </li>
+                    <li><a href="/sequence/20782">Ес<span style="background-color: #FFFCBB">тест</span>венный отбор
+                        [Гордеева]</a> (2 книги)
+                    </li>
+                    <li><a href="/sequence/67974">Ес<span style="background-color: #FFFCBB">тест</span>венный отбор
+                        [Петров]</a> (2 книги)
+                    </li>
+                    <li><a href="/sequence/67973">Ес<span style="background-color: #FFFCBB">тест</span>венный отбор
+                        [Юдин]</a> (2 книги)
+                    </li>
+                    <li><a href="/sequence/104432">Ес<span style="background-color: #FFFCBB">тест</span>вознатель</a> (3
+                        книги)
+                    </li>
+                    <li><a href="/sequence/71201">Неес<span style="background-color: #FFFCBB">тест</span>венные причины.
+                        Книги о врачах, без которых невозможно раскрыть преступление</a> (9 книг)
+                    </li>
+                    <li><a href="/sequence/47825">Неес<span style="background-color: #FFFCBB">тест</span>венный Отбор
+                        [Грант]</a> (3 книги)
+                    </li>
+                    <li><a href="/sequence/62088">Неес<span style="background-color: #FFFCBB">тест</span>венный отбор
+                        [Бутырская]</a> (2 книги)
+                    </li>
+                    <li><a href="/sequence/38284">Сверхъес<span style="background-color: #FFFCBB">тест</span>венное /
+                        Supernatural</a> (23 книги)
+                    </li>
+                    <li><a href="/sequence/64046">Сверхъес<span style="background-color: #FFFCBB">тест</span>венное /
+                        Supernatural Фанфикшн</a> (7 книг)
+                    </li>
+                    <li><a href="/sequence/57848">Сверхъес<span style="background-color: #FFFCBB">тест</span>венное
+                        брачное агентство</a> (2 книги)
+                    </li>
+                    <li><a href="/sequence/101033">Сверхъес<span style="background-color: #FFFCBB">тест</span>венное
+                        фэнтези</a> (1 книга)
+                    </li>
+                    <li><a href="/sequence/71370">Сверхъес<span style="background-color: #FFFCBB">тест</span>венное.
+                        Книги по культовому сериалу</a> (12 книг)
+                    </li>
+                    <li><a href="/sequence/85079">Сверхъес<span style="background-color: #FFFCBB">тест</span>венные
+                        боссы</a> (1 книга)
+                    </li>
+                    <li><a href="/sequence/85642">Сверхъес<span style="background-color: #FFFCBB">тест</span>венные из
+                        Академии Крепость</a> (3 книги)
+                    </li>
+                    <li><a href="/sequence/66479">Социоес<span style="background-color: #FFFCBB">тест</span>венная
+                        история</a> (3 книги)
+                    </li>
+                    <li><a href="/sequence/57085">Социоес<span style="background-color: #FFFCBB">тест</span>венная
+                        история. Генезис кризисов природы и ощества в России</a> (1 книга)
+                    </li>
+                    <li><a href="/sequence/99250">Академия Сверхъес<span style="background-color: #FFFCBB">тест</span>венного</a>
+                        (3 книги)
+                    </li>
+                    <li><a href="/sequence/103494">Законы сверхъес<span style="background-color: #FFFCBB">тест</span>венного</a>
+                        (2 книги)
+                    </li>
+                    <li><a href="/sequence/105461">Институт сверхъес<span style="background-color: #FFFCBB">тест</span>венного</a>
+                        (1 книга)
+                    </li>
+                    <li><a href="/sequence/63790">Истинное Ес<span style="background-color: #FFFCBB">тест</span>во</a>
+                        (9 книг)
+                    </li>
+                    <li><a href="/sequence/41426">Классика ес<span style="background-color: #FFFCBB">тест</span>венной
+                        медицины</a> (1 книга)
+                    </li>
+                    <li><a href="/sequence/25408">Классики ес<span style="background-color: #FFFCBB">тест</span>венной
+                        медицины</a> (1 книга)
+                    </li>
+                    <li><a href="/sequence/38530">Классики ес<span style="background-color: #FFFCBB">тест</span>вознания</a>
+                        (14 книг)
+                    </li>
+                    <li><a href="/sequence/24412">Мир сверхъес<span style="background-color: #FFFCBB">тест</span>венного</a>
+                        (1 книга)
+                    </li>
+                    <li><a href="/sequence/41870">Очевидцы сверхъес<span style="background-color: #FFFCBB">тест</span>венного</a>
+                        (3 книги)
+                    </li>
+                    <li><a href="/sequence/49678">Система ес<span style="background-color: #FFFCBB">тест</span>венного
+                        исцеления Усуи</a> (2 книги)
+                    </li>
+                    <li><a href="/sequence/101980">Тюрьма Сверхъес<span style="background-color: #FFFCBB">тест</span>венных</a>
+                        (2 книги)
+                    </li>
+                    <li><a href="/sequence/82886">Управление сверхъес<span style="background-color: #FFFCBB">тест</span>венных
+                        дел</a> (1 книга)
+                    </li>
+                    <li><a href="/sequence/55558">Фантастика. Сверхъес<span
+                            style="background-color: #FFFCBB">тест</span>венные</a> (1 книга)
+                    </li>
+                    <li><a href="/sequence/26804">Государственная итоговая ат<span style="background-color: #FFFCBB">тест</span>ация</a>
+                        (2 книги)
+                    </li>
+                </ul>
+                <h3 style="margin-top: 10px; margin-bottom: 5px;"> Найденные писатели (1 - 7 из 7):</h3>
+                <ul>
+                    <li><a href="/a/220867">Роберт Гроссе<span style="background-color: #FFFCBB">тест</span></a> (1
+                        книга)
+                    </li>
+                    <li><a href="/a/317589">Фульвио <span style="background-color: #FFFCBB">Тест</span>а
+                        (иллюстратор)</a> (1 книга)
+                    </li>
+                    <li><a href="/a/324897">А. М. <span style="background-color: #FFFCBB">Тест</span>ов</a> (1 перевод)
+                    </li>
+                    <li><a href="/a/55549">Александр Валентинович <span style="background-color: #FFFCBB">Тест</span>ов</a>
+                        (12 книг)
+                    </li>
+                    <li><a href="/a/294548">Алексей <span style="background-color: #FFFCBB">Тест</span>он</a> (1 книга)
+                    </li>
+                    <li><a href="/a/14083">Сильви <span style="background-color: #FFFCBB">Тест</span>ю</a> (2 книги)
+                    </li>
+                    <li><a href="/a/192916">Ма<span style="background-color: #FFFCBB">тест</span> Менделевич Агрест</a>
+                        (3 книги)
+                    </li>
+                </ul>
+                <h3 style="margin-top: 10px; margin-bottom: 5px;"> Найденные книги (1 - 50 из 750):</h3>
+                <ul>
+                    <li><a href="/b/799558">Русини в Україні: <span style="background-color: #FFFCBB">тест</span> на
+                        європейськість [Русины в Украине: <span style="background-color: #FFFCBB">тест</span> на
+                        европейскость]</a> - <a href="/a/256345">Иван Иванович Мигович</a></li>
+                    <li><a href="/b/702901"><span style="background-color: #FFFCBB">Тест</span></a> - <a
+                            href="/a/242547">Александр Феликсович Борун</a></li>
+                    <li><a href="/b/583373"><span style="background-color: #FFFCBB">Тест</span></a> - <a
+                            href="/a/225465">Юрий Владимирович Павлов</a></li>
+                    <li><a href="/b/314623"><span style="background-color: #FFFCBB">Тест</span></a> - <a
+                            href="/a/112293">Владимир Муровайко</a></li>
+                    <li><a href="/b/56563"><span style="background-color: #FFFCBB">Тест</span></a> - <a href="/a/28633">Дарослав
+                        Ежи Торунь</a></li>
+                    <li><a href="/b/728272"><span style="background-color: #FFFCBB">Тест</span></a> - <a
+                            href="/a/280520">Данияр Темирбекович Джумалиев</a></li>
+                    <li><a href="/b/56427"><span style="background-color: #FFFCBB">Тест</span></a> - <a href="/a/20024">Теодор
+                        Л. Томас</a></li>
+                    <li><a href="/b/339912"><span style="background-color: #FFFCBB">Тест</span></a> - <a
+                            href="/a/37229">Ричард Мэтисон</a></li>
+                    <li><a href="/b/58930"><span style="background-color: #FFFCBB">Тест</span></a> - <a href="/a/13126">Михаил
+                        Иосифович Веллер</a></li>
+                    <li><a href="/b/314772"><span style="background-color: #FFFCBB">Тест</span> </a> - <a
+                            href="/a/112293">Владимир Муровайко</a></li>
+                    <li><a href="/b/14371"><span style="background-color: #FFFCBB">Тест</span> No 17</a> - <a
+                            href="/a/139877">Феликс Яковлевич Суркис</a></li>
+                    <li><a href="/b/659864"><span style="background-color: #FFFCBB">Тест</span> No 17</a> - <a
+                            href="/a/139877">Феликс Яковлевич Суркис</a></li>
+                    <li><a href="/b/204301"><span style="background-color: #FFFCBB">Тест</span> PNG с прозрачностью</a>
+                        - <a href="/a/66196">Рыжий Тигра</a></li>
+                    <li><a href="/b/203362"><span style="background-color: #FFFCBB">Тест</span> Бромгекфельца</a> - <a
+                            href="/a/53301">Наталья Егорова</a></li>
+                    <li><a href="/b/667855"><span style="background-color: #FFFCBB">Тест</span> Ворошилова</a> - <a
+                            href="/a/258574">Антон Рундквист</a></li>
+                    <li><a href="/b/395286"><span style="background-color: #FFFCBB">Тест</span> Роршаха в клинической
+                        практике [Краткое пособие для врачей и психологов]</a> - <a href="/a/114196">Олег Геннадьевич
+                        Сыропятов</a></li>
+                    <li><a href="/b/634428"><span style="background-color: #FFFCBB">Тест</span> Роршаха. Герман Роршах,
+                        его <span style="background-color: #FFFCBB">тест</span> и сила видения [litres]</a> - <a
+                            href="/a/246161">Дэмион Сирлз</a></li>
+                    <li><a href="/b/677498"><span style="background-color: #FFFCBB">Тест</span> Роршаха. Герман Роршах,
+                        его <span style="background-color: #FFFCBB">тест</span> и сила видения</a> - <a
+                            href="/a/246161">Дэмион Сирлз</a></li>
+                    <li><a href="/b/634315"><span style="background-color: #FFFCBB">Тест</span> Роршаха. Герман Роршах,
+                        его <span style="background-color: #FFFCBB">тест</span> и сила видения</a> - <a
+                            href="/a/246161">Дэмион Сирлз</a></li>
+                    <li><a href="/b/797721"><span style="background-color: #FFFCBB">Тест</span> СМИЛ и психотипы. Как
+                        увидеть человека за графиком</a> - <a href="/a/288823">Евгений Мироненко</a>, <a
+                            href="/a/288825">Наталья Обердерфер</a></li>
+                    <li><a href="/b/812646"><span style="background-color: #FFFCBB">Тест</span> Сегаля [litres]</a> - <a
+                            href="/a/216629">Мириам Залманович</a></li>
+                    <li><a href="/b/733041"><span style="background-color: #FFFCBB">Тест</span> Тьюринга [litres]</a> -
+                        <a href="/a/88">Александр Петрович Никонов</a></li>
+                    <li><a href="/b/790922"><span style="background-color: #FFFCBB">Тест</span> ЭБ 1258.16. Подготовка и
+                        проверка знаний работников организаций-потребителей электрической энергии (IV группа по
+                        электробезопасности до 1000 В). Сентябрь 2023. Ответы на билеты</a> - <a href="/a/304357">Вячеслав
+                        Дьяконов</a></li>
+                    <li><a href="/b/354949"><span style="background-color: #FFFCBB">Тест</span> для наместника</a> - <a
+                            href="/a/129207">Юлия Вадимовна Черных</a></li>
+                    <li><a href="/b/232696"><span style="background-color: #FFFCBB">Тест</span> для убийцы</a> - <a
+                            href="/a/76381">Уилл Лэвендер</a></li>
+                    <li><a href="/b/580683"><span style="background-color: #FFFCBB">Тест</span> доктора Купера [= Горный
+                        стрелок]</a> - <a href="/a/76441">Сергей Васильевич Самаров</a></li>
+                    <li><a href="/b/691881"><span style="background-color: #FFFCBB">Тест</span> личности</a> - <a
+                            href="/a/253512">Бруно Арендт</a></li>
+                    <li><a href="/b/733239"><span style="background-color: #FFFCBB">Тест</span> на 220</a> - <a
+                            href="/a/242264">Вера Ард</a></li>
+                    <li><a href="/b/442153"><span style="background-color: #FFFCBB">Тест</span> на iq. Умственные
+                        способности человека (СИ)</a> - <a href="/a/165005">Борис Иванович Сокольников</a></li>
+                    <li><a href="/b/603590"><span style="background-color: #FFFCBB">Тест</span> на ДНК. С чего все
+                        начиналось? О наследственности, изменчивости и эволюции</a> - <a href="/a/229666">Грегор Иоганн
+                        Мендель</a>, <a href="/a/234987">Френсис Гальтон</a></li>
+                    <li><a href="/b/484430"><span style="background-color: #FFFCBB">Тест</span> на блондинку [антология]</a>
+                        - <a href="/a/3099">Дмитрий Александрович Емец</a>, <a href="/a/20373">Александр Снегирев</a>,
+                        <a href="/a/29395">Антон Чижъ</a>, <a href="/a/93206">Родион Андреевич Белецкий</a>, <a
+                                href="/a/108231">Евгений Борисович Новиков</a>, <a href="/a/118769">Андрей Игоревич
+                            Ильенков</a>, <a href="/a/133390">Вячеслав Анатольевич Харченко</a>, <a href="/a/163390">Максим
+                            Александрович Гуреев</a>, <a href="/a/172057">Сергей Павлович Петров</a>, <a
+                                href="/a/173678">Андроник Григорьевич Романов</a>, <a href="/a/179955">Никита
+                            Шамордин</a>, <a href="/a/181825">Олег Олегович Жданов</a>, <a href="/a/181870">Дмитрий
+                            Петрович Бирман</a>, <a href="/a/182611">Николай Валентинович Кузнецов</a>, <a
+                                href="/a/182612">Максим Александрович Матковский</a></li>
+                    <li><a href="/b/597278"><span style="background-color: #FFFCBB">Тест</span> на верность</a> - <a
+                            href="/a/131397">Алена Бородина</a></li>
+                    <li><a href="/b/524419"><span style="background-color: #FFFCBB">Тест</span> на верность</a> - <a
+                            href="/a/199789">Эгилс Шнёре</a></li>
+                    <li><a href="/b/353293"><span style="background-color: #FFFCBB">Тест</span> на верность</a> - <a
+                            href="/a/118637">Наталья Аверкиева</a></li>
+                    <li><a href="/b/610203"><span style="background-color: #FFFCBB">Тест</span> на верность. Книга
+                        вторая</a> - <a href="/a/131397">Алена Бородина</a></li>
+                    <li><a href="/b/623963"><span style="background-color: #FFFCBB">Тест</span> на выживание [publisher:
+                        SelfPub]</a> - <a href="/a/24277">Олег Олегович Шовкуненко</a></li>
+                    <li><a href="/b/627971"><span style="background-color: #FFFCBB">Тест</span> на графоманию</a> - <a
+                            href="/a/243545">Наталия Алексеевна Королева</a></li>
+                    <li><a href="/b/828882"><span style="background-color: #FFFCBB">Тест</span> на доверие</a> - <a
+                            href="/a/29457">Галина Владимировна Романова</a></li>
+                    <li><a href="/b/782967"><span style="background-color: #FFFCBB">Тест</span> на измену</a> - <a
+                            href="/a/239172">Инна Инфинити</a></li>
+                    <li><a href="/b/674502"><span style="background-color: #FFFCBB">Тест</span> на измену</a> - <a
+                            href="/a/183314">Лина Филимонова</a></li>
+                    <li><a href="/b/796798"><span style="background-color: #FFFCBB">Тест</span> на интеллектуальность и
+                        порядочность для представителей государственной власти России</a> - <a href="/a/20584">Внутренний
+                        Предиктор СССР</a></li>
+                    <li><a href="/b/182614"><span style="background-color: #FFFCBB">Тест</span> на лидерство (по русским
+                        народным сказкам)</a> - <a href="/a/58357">Анастасия Васильевна Вихоцкая</a></li>
+                    <li><a href="/b/116838"><span style="background-color: #FFFCBB">Тест</span> на любовь</a> - <a
+                            href="/a/85410">Вера Васильевна Копейко</a></li>
+                    <li><a href="/b/357836"><span style="background-color: #FFFCBB">Тест</span> на любовь [A Doctor, A
+                        Nurse: A Christmas Baby]</a> - <a href="/a/120979">Эми Эндрюс</a></li>
+                    <li><a href="/b/115606"><span style="background-color: #FFFCBB">Тест</span> на любовь [The Italian
+                        Duke’s Wife]</a> - <a href="/a/2883">Пенни Джордан</a></li>
+                    <li><a href="/b/694594"><span style="background-color: #FFFCBB">Тест</span> на наречену [ЛП]</a> -
+                        <a href="/a/232278">Хелен Хоанг</a></li>
+                    <li><a href="/b/536685"><span style="background-color: #FFFCBB">Тест</span> на отцовство</a> - <a
+                            href="/a/199320">Эмилия Грант</a></li>
+                    <li><a href="/b/738342"><span style="background-color: #FFFCBB">Тест</span> на отцовство</a> - <a
+                            href="/a/210479">Янка Рам</a></li>
+                    <li><a href="/b/705935"><span style="background-color: #FFFCBB">Тест</span> на отцовство</a> - <a
+                            href="/a/263819">Тая Наварская</a></li>
+                    <li><a href="/b/139195"><span style="background-color: #FFFCBB">Тест</span> на подлость</a> - <a
+                            href="/a/7771">Евгений Николаевич Малинин</a></li>
+                </ul>
+                <br>
+                <div class="item-list">
+                    <ul class="pager">
+                        <li class="pager-current first">1</li>
+                        <li class="pager-item"><a href="/booksearch?page=1&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На страницу номер 2" class="active">2</a></li>
+                        <li class="pager-item"><a href="/booksearch?page=2&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На страницу номер 3" class="active">3</a></li>
+                        <li class="pager-item"><a href="/booksearch?page=3&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На страницу номер 4" class="active">4</a></li>
+                        <li class="pager-item"><a href="/booksearch?page=4&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На страницу номер 5" class="active">5</a></li>
+                        <li class="pager-item"><a href="/booksearch?page=5&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На страницу номер 6" class="active">6</a></li>
+                        <li class="pager-item"><a href="/booksearch?page=6&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На страницу номер 7" class="active">7</a></li>
+                        <li class="pager-item"><a href="/booksearch?page=7&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На страницу номер 8" class="active">8</a></li>
+                        <li class="pager-item"><a href="/booksearch?page=8&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На страницу номер 9" class="active">9</a></li>
+                        <li class="pager-ellipsis">…</li>
+                        <li class="pager-next"><a href="/booksearch?page=1&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                  title="На следующую страницу" class="active">следующая ›</a></li>
+                        <li class="pager-last last"><a href="/booksearch?page=14&amp;ask=%D1%82%D0%B5%D1%81%D1%82"
+                                                       title="На последнюю страницу" class="active">последняя »</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="sidebar-right" class="sidebar">
+            <div class="block block-librusec" id="block-librusec-booksearch">
+                <div class="blockinner">
+
+                    <h2 class="title"> Поиск книг </h2>
+                    <div class="content">
+                        <br>
+                        <form action="/booksearch"><input style="width: 70%" name=ask><input type=submit
+                                                                                             value="искать!"></form>
+                        <div class="item-list">
+                            <ul style="margin-top:7px; font-size:90%">
+                                <li><a href="/book">Расширенный поиск</a></li>
+                                <li><a style="background-position: right center; background-repeat: no-repeat;
+                                      background-image: linear-gradient(transparent, transparent), url('data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%3E%3Cg%20transform%3D%22translate%28-826.429%20-698.791%29%22%3E%3Crect%20width%3D%225.982%22%20height%3D%225.982%22%20x%3D%22826.929%22%20y%3D%22702.309%22%20fill%3D%22%23fff%22%20stroke%3D%22%2306c%22%2F%3E%3Cg%3E%3Cpath%20d%3D%22M831.194%20698.791h5.234v5.391l-1.571%201.545-1.31-1.31-2.725%202.725-2.689-2.689%202.808-2.808-1.311-1.311z%22%20fill%3D%22%2306f%22%2F%3E%3Cpath%20d%3D%22M835.424%20699.795l.022%204.885-1.817-1.817-2.881%202.881-1.228-1.228%202.881-2.881-1.851-1.851z%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E');
+                                      padding-right: 13px;"
+                                       href="http://fbsearch.ru">Полнотекстовый поиск по книгам</a></li>
+                                <li><a href="/comp">Сравнение книг</a></li>
+                                <li><a href="/stat/b">Популярные книги</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="block block-user" id="block-user-0">
+                <div class="blockinner">
+
+                    <h2 class="title"> Вход в систему </h2>
+                    <div class="content">
+                        <form action="/booksearch?destination=booksearch%3Fask%3D%25D1%2582%25D0%25B5%25D1%2581%25D1%2582"
+                              accept-charset="UTF-8" method="post" id="user-login-form">
+                            <div>
+                                <div class="form-item" id="edit-openid-identifier-wrapper">
+                                    <label for="edit-openid-identifier">Войти по OpenID: </label>
+                                    <input type="text" maxlength="255" name="openid_identifier"
+                                           id="edit-openid-identifier" size="13" value="" class="form-text"/>
+                                    <div class="description"><a href="http://openid.net/">Что такое OpenID?</a></div>
+                                </div>
+                                <div class="form-item" id="edit-name-wrapper">
+                                    <label for="edit-name">Имя пользователя: <span class="form-required"
+                                                                                   title="Обязательное поле">*</span></label>
+                                    <input type="text" maxlength="60" name="name" id="edit-name" size="15" value=""
+                                           class="form-text required"/>
+                                </div>
+                                <div class="form-item" id="edit-pass-wrapper">
+                                    <label for="edit-pass">Пароль: <span class="form-required"
+                                                                         title="Обязательное поле">*</span></label>
+                                    <input type="password" name="pass" id="edit-pass" maxlength="60" size="15"
+                                           class="form-text required"/>
+                                </div>
+                                <div class="form-item" id="edit-persistent-login-wrapper">
+                                    <label class="option" for="edit-persistent-login"><input type="checkbox"
+                                                                                             name="persistent_login"
+                                                                                             id="edit-persistent-login"
+                                                                                             value="1"
+                                                                                             class="form-checkbox"/>
+                                        Запомнить меня</label>
+                                </div>
+                                <input type="submit" name="op" id="edit-submit" value="Вход в систему"
+                                       class="form-submit"/>
+                                <input type="hidden" name="form_build_id"
+                                       id="form-HAjyi4Un7RwH3AQQDIMw-aa8o1ysf8x0vRKRBNR_Q9M"
+                                       value="form-HAjyi4Un7RwH3AQQDIMw-aa8o1ysf8x0vRKRBNR_Q9M"/>
+                                <input type="hidden" name="form_id" id="edit-user-login-block"
+                                       value="user_login_block"/>
+                                <input type="hidden" name="openid.return_to" id="edit-openid.return-to"
+                                       value="https://m.flibusta.is/openid/authenticate?destination=booksearch%3Fask%3D%25D1%2582%25D0%25B5%25D1%2581%25D1%2582"/>
+                                <div class="item-list">
+                                    <ul>
+                                        <li class="openid-link first"><a href="/%2523">Войти по OpenID</a></li>
+                                        <li class="user-link last"><a href="/%2523">Скрыть вход по OpenID</a></li>
+                                    </ul>
+                                </div>
+                                <div class="item-list">
+                                    <ul>
+                                        <li class="first"><a href="/user/register"
+                                                             title="Создать новую учетную запись пользователя.">Регистрация</a>
+                                        </li>
+                                        <li class="last"><a href="/user/password"
+                                                            title="Запросить новый пароль по электронной почте.">Забыли
+                                            пароль?</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            <div class="block block-user" id="block-user-1">
+                <div class="blockinner">
+
+                    <h2 class="title"> Навигация </h2>
+                    <div class="content">
+                        <ul class="menu">
+                            <li class="expanded first"><a href="/b" title="">Книги</a>
+                                <ul class="menu">
+                                    <li class="leaf first"><a href="/new">Последние поступления</a></li>
+                                    <li class="leaf"><a href="/g">Жанры</a></li>
+                                    <li class="leaf"><a href="/a">Авторы</a></li>
+                                    <li class="leaf"><a href="/s">Сериалы</a></li>
+                                    <li class="leaf"><a href="/node/55088" title="">ЧаВо по книгам</a></li>
+                                    <li class="leaf"><a href="/rec" title="">Рекомендации сообщества</a></li>
+                                    <li class="leaf last"><a href="/comp" title="">Сравнение книг</a></li>
+                                </ul>
+                            </li>
+                            <li class="expanded"><a href="/" title="">Иное</a>
+                                <ul class="menu">
+                                    <li class="leaf first"><a href="/dostup" title="">Доступ через блок (FAQ)</a></li>
+                                    <li class="leaf"><a href="/node/68981" title="">Печать книг по требованию</a></li>
+                                    <li class="leaf"><a href="/node/68684" title="">Авторы на Флибусте</a></li>
+                                    <li class="leaf"><a href="/node/63338" title="">Синхронизация библиотек</a></li>
+                                    <li class="leaf"><a href="/node/55618" title="">Прочти эти стихи...</a></li>
+                                    <li class="leaf"><a href="/node/184794" title="">Старые советские учебники</a></li>
+                                    <li class="leaf"><a href="/node/95809"
+                                                        title="Архив обсуждений на блогофорумах, рассортированный по категориям">Каталог
+                                        книжных тем</a></li>
+                                    <li class="leaf"><a href="/node/65671"
+                                                        title="Сообщения о дублях книг и обсуждения объединений">Удаление
+                                        двойников</a></li>
+                                    <li class="leaf"><a href="/node/38339" title="">Востребованные книги</a></li>
+                                    <li class="leaf last"><a href="/node/55360" title="">Ищу книгу!</a></li>
+                                </ul>
+                            </li>
+                            <li class="expanded"><a href="/" title="">Библиотека</a>
+                                <ul class="menu">
+                                    <li class="leaf first"><a href="http://mobile.flibusta.is/" title="">Мобильная
+                                        версия</a></li>
+                                    <li class="leaf"><a href="/sql/" title="">Файлы базы данных</a></li>
+                                    <li class="leaf"><a href="/daily/" title="">Файлы обновлений</a></li>
+                                    <li class="leaf"><a href="/catalog/catalog.zip" title="">Скачать каталог</a></li>
+                                    <li class="leaf last"><a href="/node/64756" title="">Скачать библиотеку целиком</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="collapsed"><a href="/user" title="">Учётные данные</a></li>
+                            <li class="expanded last"><a href="/" title="">Другие библиотеки</a>
+                                <ul class="menu">
+                                    <li class="leaf first"><a href="https://libgen.gs/" title="">Научная литература</a>
+                                    </li>
+                                    <li class="leaf"><a href="http://sci-hub.se" title="">Научные статьи</a></li>
+                                    <li class="leaf"><a href="http://libgen.lc/foreignfiction/" title="">Иностранная
+                                        литература</a></li>
+                                    <li class="leaf"><a href="https://z-library.sk/" title=""> Z-Library</a></li>
+                                    <li class="leaf"><a href="http://cyberleninka.ru" title="">Киберленинка</a></li>
+                                    <li class="leaf"><a href="http://libgen.lc/comics/" title="">Архив комиксов</a></li>
+                                    <li class="leaf"><a href="http://magzdb.org/" title="">Вся периодика мира</a></li>
+                                    <li class="leaf last"><a href="/node/72715" title="">Ссылки на прочие ресурсы</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+            <div class="block block-comment" id="block-comment-0">
+                <div class="blockinner">
+
+                    <h2 class="title"><a href="/tracker">Последние комментарии</a></h2>
+                    <div class="content">
+                        <div class="item-list">
+                            <ul>
+                                <li class="first"><a href="/comment/3643594#comment-3643594">Re: &quot;Хотят ли русские
+                                    войны?&quot; (с)</a><br/>20 минут 44 секунды назад
+                                </li>
+                                <li><a href="/comment/3643593#comment-3643593">Re: &quot;Хотят ли русские войны?&quot;
+                                    (с)</a><br/>22 минуты 50 секунд назад
+                                </li>
+                                <li><a href="/comment/3643590#comment-3643590">Re: &quot;Хотят ли русские войны?&quot;
+                                    (с)</a><br/>32 минуты 55 секунд назад
+                                </li>
+                                <li><a href="/comment/3643589#comment-3643589">Re: &quot;Хотят ли русские войны?&quot;
+                                    (с)</a><br/>33 минуты 7 секунд назад
+                                </li>
+                                <li><a href="/comment/3643588#comment-3643588">Re: &quot;Хотят ли русские войны?&quot;
+                                    (с)</a><br/>34 минуты 59 секунд назад
+                                </li>
+                                <li><a href="/comment/3643586#comment-3643586">Re: &quot;Хотят ли русские войны?&quot;
+                                    (с)</a><br/>38 минут 2 секунды назад
+                                </li>
+                                <li><a href="/comment/3643585#comment-3643585">Re: &quot;Хотят ли русские войны?&quot;
+                                    (с)</a><br/>45 минут 34 секунды назад
+                                </li>
+                                <li><a href="/comment/3643584#comment-3643584">Re: &quot;Хотят ли русские войны?&quot;
+                                    (с)</a><br/>51 минута 14 секунд назад
+                                </li>
+                                <li><a href="/comment/3643583#comment-3643583">Re: &quot;Хотят ли русские войны?&quot;
+                                    (с)</a><br/>54 минуты 22 секунды назад
+                                </li>
+                                <li class="last"><a href="/comment/3643582#comment-3643582">Re: &quot;Хотят ли русские
+                                    войны?&quot; (с)</a><br/>56 минут 36 секунд назад
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="block block-librusec" id="block-librusec-polka">
+                <div class="blockinner">
+
+                    <h2 class="title"><a href="/polka/show/all">Впечатления о книгах</a></h2>
+                    <div class="content">
+                        <div class="container_845106"><b><a href="/polka/show/560301">Wajs</a></b> про <a
+                                href="/a/200572">Усманов</a>: <a href="/b/845106">Игры благородных</a> <br>Пролистал до
+                            третьей. Конец второй и начало третьей - они сотни страниц стоят в коридоре. Как она думает.
+                            Как он думает. Как это выглядит.
+                            <br>Я понимаю, что это Усманов... но тут он перепрыгнул себя.
+                            <hr>
+                        </div>
+                        <div class="container_847314"><b><a href="/polka/show/3280">Arm</a></b> про <a href="/a/203544">Колмаков</a>:
+                            <a href="/b/847314">Трудно быть гномом</a> <br>Влажно, наивно. От 1-го лица. Картонные
+                            диалоги.
+                            <br>Мечты солдата про мир меча и магии с получением мегарояля.
+                            <br>Словоблудие и наивные метания.
+                            <br>Не осилил.
+                            <hr>
+                        </div>
+                        <div class="container_522851"><b><a href="/polka/show/804054">prochti</a></b> про <a
+                                href="/a/5733">Кенэлли</a>: <a href="/b/522851">Дочери Марса</a> <br>Перевод чудовищный
+                            .
+                            <hr>
+                        </div>
+                        <div class="container_647782"><b><a href="/polka/show/1369405">Knigo4eika</a></b> про <a
+                                href="/a/251324">Каттен</a>: <a href="/b/647782">Моя (с)нежная девочка</a> <br>Ой, ну
+                            такое надо читать, когда настроен на что-то сладкое и идеальное. Слишком идеальное. И
+                            слишком сладкое.
+                            <br>Но иногда такое хочется почитать, отдохнуть от героев-арбузеров и хамов. =)
+                            <br>Главный герой - слишком прекрасен, чтобы быть реальным, да.
+                            <hr>
+                        </div>
+                        <div class="container_848162"><b><a href="/polka/show/700118">ELO.332</a></b> про <a
+                                href="/a/218677">Иванов</a>: <a href="/b/848162">Кайа.История про одолженную жизнь</a>
+                            <br>Совершенно не понравилось.
+                            <br> В топку!
+                            <hr>
+                        </div>
+                        <div class="container_309292"><b><a href="/polka/show/356048">eblack</a></b> про <a
+                                href="/a/17757">Кинг</a>: <a href="/b/309292">Истребитель демонов</a> <br>Слушал
+                            аудиокнигу. Сказали, что продолжение лучше первы - так. что начал со второй.
+                            <br>Ну, это даже не романы отдельные в серии, а сборник повестей собранных по книгам без
+                            общих в общем-то тем. Связь с Вархамером ни к чему не обязывает, так как я ничего о нём не
+                            знаю, а выглядит просто как обычная фэнтэзя, в которой много монстров и злых богов.
+                            <br>
+                            <br>Два мужика, один силён (гном), другой послабее (бард) идут и попадают в неприятности.
+                            Где-то с долей юмора, но в основном автор нагнетает серьёзности (но в целом чтиво лёгкое,
+                            так что никакой драмы).
+                            <br>
+                            <br>Такой себе сериал - читать пока не надоест.
+                            <hr>
+                        </div>
+                        <div class="container_847043"><b><a href="/polka/show/1348001">Surka</a></b> про <a
+                                href="/a/310903">Скиба</a>: <a href="/b/847043">Егерь. Вызов</a> <br>Оценка 2/5
+                            <hr>
+                        </div>
+                        <div class="container_845291"><b><a href="/polka/show/1348001">Surka</a></b> про <a
+                                href="/a/310903">Скиба</a>: <a href="/b/845291">Егерь. Опасная Зона</a> <br>Уся
+                            головного мозга, с тупыми второстепенными персонажами
+                            <hr>
+                        </div>
+                        <div class="container_844035"><b><a href="/polka/show/1348001">Surka</a></b> про <a
+                                href="/a/310903">Скиба</a>: <a href="/b/844035">Егерь. Системный зверолов</a> <br>ГГ,
+                            терпила и этим всё сказано. Вместо того, чтобы зарезать девушку Виолу серпом, он не может
+                            ничего сделать, потому-что ему... а хер знает, что не позволяет ему это сделать... А,
+                            точно... тупой сюжет.
+                            <hr>
+                        </div>
+                        <div class="container_775965"><b><a href="/polka/show/700118">ELO.332</a></b> про <a
+                                href="/a/237093">Евтушенко</a>: <a href="/b/775965">Как я стал хозяином странного замка
+                            в другом мире. Книга 1</a> <br>Трижды пытался читать, но не смог. Скучно. Ни о чём.
+                            <hr>
+                        </div>
+                        <a href="/polka/show/all">Все впечатления</a></div>
+
+                </div>
+            </div>
+            <div class="block block-librusec" id="block-librusec-knapsack">
+                <div class="blockinner">
+
+                    <h2 class="title"> Рюкзачок </h2>
+                    <div class="content">
+                        <label>Перехватывать закачки
+                            <input type="checkbox" id="knapsack-intercept" style="margin:0;padding:1px"
+                                   onclick="onKnapsackIntercept(this.checked)"
+                            >
+                        </label>
+
+                        <p style="margin:0; margin-top:8px; margin-bottom:7px">
+                            <input type="button" id="knapsack-get-list"
+                                   style="width:75px;margin-bottom:4px"
+                                   value="Список"
+                                   title="список для качалки"
+                                   onclick="onKnapsackList()"
+                            >
+
+                            <input type="button" id="knapsack-clear"
+                                   style="width:75px;margin-bottom:4px"
+                                   value="Очистить"
+                                   title="удалить все"
+                                   onclick="onKnapsackClear()"
+                            >
+                        </p>
+
+                        <div id="knapsack-list"
+                             style="height:98px; width:97%; overflow:auto;padding-left:1px; border:inset 1px #AEAEAE; font:normal normal normal 11px/14px 'Courier New','Lucida Console','BatangChe',monospace">
+                        </div>
+
+                        <p style="margin:0; margin-top:5px; margin-bottom:5px">
+                            Всего книг: <span id="knapsack-count" style="font-weight: bold;">0</span>.
+                        </p>
+
+                        <p style="margin:0; margin-top:5px">
+                            <a id="knapsack-add-checked" href="#" onclick="onKnapsackAddSelected();return false;">(добавить
+                                все выбранное)</a>
+                        </p>
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="footer">
+        Fueled by Johannes Gensfleisch zur Laden zum Gutenberg      <!--<div class="block block-system" id="block-system-0">
+  <div class="blockinner">
+
+
+    <div class="content">
+      <a href="http://drupal.org"><img src="/misc/powered-blue-80x15.png" alt="Powered by Pressflow, an open source content management system" title="Powered by Pressflow, an open source content management system" width="80" height="15" /></a>    </div>
+
+  </div>
+</div>
+-->
+    </div>
+
+
+</div>
+</body>
+</html>
