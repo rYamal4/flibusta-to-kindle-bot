@@ -34,6 +34,33 @@ class SendToKindleBot(
         token = config.telegramBotToken
 
         dispatch {
+            command("start") {
+                val userId = message.from?.id
+                if (!isAuthorized(userId)) {
+                    log.warn { "Unauthorized start attempt by user $userId" }
+                    sendUnauthorizedMessage(message.chat.id)
+                    return@command
+                }
+                val emailInfo = getUserKindleEmail(config.telegramUserId).let {
+                    if (it == null) "Вы не добавили почту" else "Ваша почта: $it"
+                }
+
+                bot.sendMessage(
+                    chatId = ChatId.fromId(message.chat.id),
+                    text = """
+                    Чтобы найти книгу, просто напишите название книги и отправьте сообщение боту.
+
+                    Перед использованием бота, установите почту, связанную с вашим аккаунтом Kindle с помощью команды /email и добавьте ${config.senderEmail} в список одобренных email адресов на странице настроек устройства в разделе Personal Document Settings.
+
+                    Команды:
+
+                    /start - информация о боте
+                    /email your@kindle.com - добавление почты вашего аккаунта Kindle
+
+                    """.plus(emailInfo).trimIndent()
+                )
+            }
+
             command("email") {
                 val userId = message.from?.id
                 if (!isAuthorized(userId)) {
@@ -74,7 +101,7 @@ class SendToKindleBot(
                     sendUnauthorizedMessage(message.chat.id)
                     return@text
                 }
-                
+
                 val query = text.trim()
                 if (text.startsWith("/") || query.isEmpty()) {
                     return@text
