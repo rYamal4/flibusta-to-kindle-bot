@@ -69,35 +69,16 @@ class SendToKindleBot(
                 )
             }
 
-            command("getkindleemail") {
-                val userId = message.from?.id
-                if (!isAuthorized(userId)) {
-                    log.warn { "Unauthorized getkindleemail attempt by user $userId" }
-                    sendUnauthorizedMessage(message.chat.id)
-                    return@command
-                }
-
-                val email = getUserKindleEmail(userId!!)
-                val messageText = if (email != null) {
-                    "Ваш Kindle email: $email"
-                } else {
-                    "Kindle email не установлен. Используйте /email your@kindle.com"
-                }
-
-                bot.sendMessage(
-                    chatId = ChatId.fromId(message.chat.id),
-                    text = messageText
-                )
-            }
-
             text {
                 if (!isAuthorized(message.from?.id)) {
                     sendUnauthorizedMessage(message.chat.id)
                     return@text
                 }
-
+                
                 val query = text.trim()
-                if (query.isEmpty()) return@text
+                if (text.startsWith("/") || query.isEmpty()) {
+                    return@text
+                }
 
                 withContext(dispatcher) {
                     try {
