@@ -2,32 +2,31 @@ package io.github.ryamal4.bot
 
 import com.github.kotlintelegrambot.bot
 import com.github.kotlintelegrambot.dispatch
-import com.github.kotlintelegrambot.dispatcher.Dispatcher
-import com.github.kotlintelegrambot.dispatcher.command
 import com.github.kotlintelegrambot.dispatcher.callbackQuery
+import com.github.kotlintelegrambot.dispatcher.command
 import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.InlineKeyboardMarkup
 import com.github.kotlintelegrambot.entities.keyboard.InlineKeyboardButton
 import io.github.ryamal4.config.BotConfiguration
-import io.github.ryamal4.service.KindleService
-import io.github.ryamal4.model.BookSummary
 import io.github.ryamal4.model.BookSequence
-import io.github.ryamal4.service.flibusta.FlibustaClient
+import io.github.ryamal4.model.BookSummary
+import io.github.ryamal4.service.KindleService
+import io.github.ryamal4.service.flibusta.FlibustaService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
-import java.util.UUID
+import java.util.*
 
 class SendToKindleBot(
     private val config: BotConfiguration,
-    private val flibustaClient: FlibustaClient,
+    private val flibustaService: FlibustaService,
     private val kindleService: KindleService,
     private val dispatcher: CoroutineDispatcher
 ) {
     private val pageSize = 5
     private val searchSessions = mutableMapOf<String, String>()
-    private val log = KotlinLogging.logger {  }
+    private val log = KotlinLogging.logger { }
 
     private val bot = bot {
         token = config.telegramBotToken
@@ -76,7 +75,7 @@ class SendToKindleBot(
 
                 withContext(dispatcher) {
                     try {
-                        val searchResults = flibustaClient.getBooks(query)
+                        val searchResults = flibustaService.getBooks(query)
 
                         if (searchResults.books.isEmpty() && searchResults.sequences.isEmpty()) {
                             log.info { "Search '$query' returned no results" }
@@ -94,10 +93,23 @@ class SendToKindleBot(
 
                         val sequencesOnPage = if (page == 0) searchResults.sequences else emptyList()
                         val booksStartIndex = maxOf(0, page * pageSize - searchResults.sequences.size)
-                        val booksOnPage = searchResults.books.drop(booksStartIndex).take(maxOf(0, pageSize - sequencesOnPage.size))
+                        val booksOnPage =
+                            searchResults.books.drop(booksStartIndex).take(maxOf(0, pageSize - sequencesOnPage.size))
 
-                        val messageText = formatBooksPage(query, page, totalPages, searchResults.books.size, searchResults.sequences.size)
-                        val keyboard = createPaginationKeyboard(getIdForQuery(query), page, totalPages, booksOnPage, sequencesOnPage)
+                        val messageText = formatBooksPage(
+                            query,
+                            page,
+                            totalPages,
+                            searchResults.books.size,
+                            searchResults.sequences.size
+                        )
+                        val keyboard = createPaginationKeyboard(
+                            getIdForQuery(query),
+                            page,
+                            totalPages,
+                            booksOnPage,
+                            sequencesOnPage
+                        )
 
                         bot.sendMessage(
                             chatId = ChatId.fromId(message.chat.id),
@@ -136,7 +148,7 @@ class SendToKindleBot(
 
                 withContext(dispatcher) {
                     try {
-                        val bookInfo = flibustaClient.getBookInfo(bookId)
+                        val bookInfo = flibustaService.getBookInfo(bookId)
                         log.info { "User $userId: Retrieved info for book $bookId: '${bookInfo.summary.title}'" }
 
                         val message = """
@@ -199,7 +211,7 @@ class SendToKindleBot(
                             text = "Скачиваю книгу..."
                         )
 
-                        val bookPath = flibustaClient.downloadBook(bookId)
+                        val bookPath = flibustaService.downloadBook(bookId)
                         log.info { "User $userId: Downloaded book $bookId to ${bookPath}" }
 
                         bot.sendMessage(
@@ -235,7 +247,7 @@ class SendToKindleBot(
 
                 withContext(dispatcher) {
                     try {
-                        val searchResults = flibustaClient.getBooks(query)
+                        val searchResults = flibustaService.getBooks(query)
 
                         if (searchResults.books.isEmpty() && searchResults.sequences.isEmpty()) {
                             bot.sendMessage(
@@ -251,10 +263,23 @@ class SendToKindleBot(
 
                         val sequencesOnPage = if (page == 0) searchResults.sequences else emptyList()
                         val booksStartIndex = maxOf(0, page * pageSize - searchResults.sequences.size)
-                        val booksOnPage = searchResults.books.drop(booksStartIndex).take(maxOf(0, pageSize - sequencesOnPage.size))
+                        val booksOnPage =
+                            searchResults.books.drop(booksStartIndex).take(maxOf(0, pageSize - sequencesOnPage.size))
 
-                        val messageText = formatBooksPage(query, page, totalPages, searchResults.books.size, searchResults.sequences.size)
-                        val keyboard = createPaginationKeyboard(getIdForQuery(query), page, totalPages, booksOnPage, sequencesOnPage)
+                        val messageText = formatBooksPage(
+                            query,
+                            page,
+                            totalPages,
+                            searchResults.books.size,
+                            searchResults.sequences.size
+                        )
+                        val keyboard = createPaginationKeyboard(
+                            getIdForQuery(query),
+                            page,
+                            totalPages,
+                            booksOnPage,
+                            sequencesOnPage
+                        )
 
                         bot.sendMessage(
                             chatId = ChatId.fromId(message.chat.id),
@@ -299,12 +324,12 @@ class SendToKindleBot(
                                 if (searchQuery.startsWith("seq:")) {
                                     val sequenceId = searchQuery.substringAfter("seq:").toIntOrNull()
                                     if (sequenceId != null) {
-                                        flibustaClient.getSequenceBooks(sequenceId) to emptyList()
+                                        flibustaService.getSequenceBooks(sequenceId) to emptyList()
                                     } else {
                                         emptyList<BookSummary>() to emptyList()
                                     }
                                 } else {
-                                    val results = flibustaClient.getBooks(searchQuery)
+                                    val results = flibustaService.getBooks(searchQuery)
                                     results.books to results.sequences
                                 }
                             }
@@ -321,7 +346,7 @@ class SendToKindleBot(
 
                             withContext(dispatcher) {
                                 try {
-                                    val bookInfo = flibustaClient.getBookInfo(book.id)
+                                    val bookInfo = flibustaService.getBookInfo(book.id)
                                     val messageText = """
                                         ${bookInfo.summary.title}
                                         Автор: ${bookInfo.summary.author}
@@ -351,6 +376,7 @@ class SendToKindleBot(
                             }
                         }
                     }
+
                     data.startsWith("page_") -> {
                         val parts = data.removePrefix("page_").split("_")
                         if (parts.size == 2) {
@@ -367,12 +393,12 @@ class SendToKindleBot(
                                 if (searchQuery.startsWith("seq:")) {
                                     val sequenceId = searchQuery.substringAfter("seq:").toIntOrNull()
                                     if (sequenceId != null) {
-                                        flibustaClient.getSequenceBooks(sequenceId) to emptyList()
+                                        flibustaService.getSequenceBooks(sequenceId) to emptyList()
                                     } else {
                                         emptyList<BookSummary>() to emptyList()
                                     }
                                 } else {
-                                    val results = flibustaClient.getBooks(searchQuery)
+                                    val results = flibustaService.getBooks(searchQuery)
                                     results.books to results.sequences
                                 }
                             }
@@ -388,7 +414,8 @@ class SendToKindleBot(
 
                             val sequencesOnPage = if (page == 0) sequences else emptyList()
                             val booksStartIndex = maxOf(0, page * pageSize - sequences.size)
-                            val booksOnPage = books.drop(booksStartIndex).take(maxOf(0, pageSize - sequencesOnPage.size))
+                            val booksOnPage =
+                                books.drop(booksStartIndex).take(maxOf(0, pageSize - sequencesOnPage.size))
 
                             val messageText = if (searchQuery.startsWith("seq:")) {
                                 """
@@ -399,7 +426,8 @@ class SendToKindleBot(
                             } else {
                                 formatBooksPage(searchQuery, page, totalPages, books.size, sequences.size)
                             }
-                            val keyboard = createPaginationKeyboard(sessionId, page, totalPages, booksOnPage, sequencesOnPage)
+                            val keyboard =
+                                createPaginationKeyboard(sessionId, page, totalPages, booksOnPage, sequencesOnPage)
 
                             val chatId = callbackQuery.message?.chat?.id ?: return@callbackQuery
                             val messageId = callbackQuery.message?.messageId ?: return@callbackQuery
@@ -413,16 +441,19 @@ class SendToKindleBot(
                             bot.answerCallbackQuery(callbackQuery.id)
                         }
                     }
+
                     data.startsWith("sequence_") -> {
                         val sequenceId = data.substringAfter("sequence_").toIntOrNull()
                         if (sequenceId != null) {
                             withContext(dispatcher) {
                                 try {
-                                    val books = flibustaClient.getSequenceBooks(sequenceId)
+                                    val books = flibustaService.getSequenceBooks(sequenceId)
 
                                     if (books.isEmpty()) {
                                         bot.sendMessage(
-                                            chatId = ChatId.fromId(callbackQuery.message?.chat?.id ?: return@withContext),
+                                            chatId = ChatId.fromId(
+                                                callbackQuery.message?.chat?.id ?: return@withContext
+                                            ),
                                             text = "Книги в серии не найдены"
                                         )
                                         return@withContext
@@ -438,7 +469,13 @@ class SendToKindleBot(
                                         Страница ${page + 1} из $totalPages
                                     """.trimIndent()
 
-                                    val keyboard = createPaginationKeyboard(getIdForQuery("seq:$sequenceId"), page, totalPages, booksOnPage, emptyList())
+                                    val keyboard = createPaginationKeyboard(
+                                        getIdForQuery("seq:$sequenceId"),
+                                        page,
+                                        totalPages,
+                                        booksOnPage,
+                                        emptyList()
+                                    )
 
                                     bot.sendMessage(
                                         chatId = ChatId.fromId(callbackQuery.message?.chat?.id ?: return@withContext),
@@ -455,15 +492,17 @@ class SendToKindleBot(
                             }
                         }
                     }
+
                     data == "noop" -> {
                         bot.answerCallbackQuery(callbackQuery.id)
                     }
+
                     data.startsWith("info_") -> {
                         val bookId = data.substringAfter("info_").toIntOrNull()
                         if (bookId != null) {
                             withContext(dispatcher) {
                                 try {
-                                    val bookInfo = flibustaClient.getBookInfo(bookId)
+                                    val bookInfo = flibustaService.getBookInfo(bookId)
                                     val messageText = """
                                         ${bookInfo.summary.title}
                                         Автор: ${bookInfo.summary.author}
@@ -493,6 +532,7 @@ class SendToKindleBot(
                             }
                         }
                     }
+
                     data.startsWith("send_") -> {
                         val bookId = data.substringAfter("send_").toIntOrNull()
                         if (bookId != null) {
@@ -503,7 +543,7 @@ class SendToKindleBot(
                                         text = "Скачиваю книгу..."
                                     )
 
-                                    val bookPath = flibustaClient.downloadBook(bookId)
+                                    val bookPath = flibustaService.downloadBook(bookId)
 
                                     bot.sendMessage(
                                         chatId = ChatId.fromId(callbackQuery.message?.chat?.id ?: return@withContext),

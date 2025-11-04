@@ -5,7 +5,7 @@ import io.github.ryamal4.model.FullBookInfo
 import io.github.ryamal4.model.SearchResults
 import java.nio.file.Path
 
-interface IFlibustaClient {
+interface IFlibustaService {
     suspend fun getBooks(query: String): SearchResults
 
     suspend fun getSequenceBooks(sequenceId: Int): List<BookSummary>

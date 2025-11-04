@@ -13,7 +13,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.div
 
-class FlibustaClient(val flibustaUrl: String) : IFlibustaClient {
+class FlibustaService(val flibustaUrl: String) : IFlibustaService {
     private val log = KotlinLogging.logger { }
     private val searchCache = mutableMapOf<String, Search>()
 
