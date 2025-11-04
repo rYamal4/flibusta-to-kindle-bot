@@ -47,3 +47,6 @@ bin/
 
 ### Docker ###
 docker-compose.override.yml
+
+### Database ###
+data/

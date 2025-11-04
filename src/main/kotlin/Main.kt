@@ -4,6 +4,7 @@ import io.github.ryamal4.bot.SendToKindleBot
 import io.github.ryamal4.config.BotConfiguration
 import io.github.ryamal4.service.KindleService
 import io.github.ryamal4.service.flibusta.FlibustaService
+import io.github.ryamal4.storage.initDatabase
 import kotlinx.coroutines.Dispatchers
 import mu.KotlinLogging
 
@@ -12,6 +13,9 @@ fun main() {
     val dispatcher = Dispatchers.IO
 
     try {
+        log.info { "Initializing database..." }
+        initDatabase()
+
         log.info { "Loading configuration from environment variables..." }
         val config = BotConfiguration.fromEnv()
 
@@ -23,7 +27,6 @@ fun main() {
             smtp = config.smtp,
             senderEmail = config.senderEmail,
             senderPassword = config.senderPassword,
-            kindleEmail = config.kindleEmail,
             dispatcher = dispatcher
         )
 

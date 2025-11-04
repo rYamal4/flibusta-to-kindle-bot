@@ -20,6 +20,10 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.4.14")
     implementation("io.github.kotlin-telegram-bot.kotlin-telegram-bot:telegram:6.1.0")
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
+    implementation("org.jetbrains.exposed:exposed-core:0.48.0")
+    implementation("org.jetbrains.exposed:exposed-dao:0.48.0")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.48.0")
+    implementation("org.xerial:sqlite-jdbc:3.45.1.0")
 
     testImplementation(kotlin("test"))
     testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
