@@ -17,7 +17,7 @@ class KindleService(
     val kindleEmail: String,
     val dispatcher: CoroutineContext
 ) : IKindleService {
-    private val log = KotlinLogging.logger {  }
+    private val log = KotlinLogging.logger { }
 
     override suspend fun sendToKindle(path: Path) {
         val fileSize = path.toFile().length()
@@ -49,10 +49,10 @@ class KindleService(
             }.onSuccess {
                 val duration = System.currentTimeMillis() - startTime
                 log.info { "Successfully sent ${path.name} (${fileSizeKB}KB) to $kindleEmail in ${duration}ms" }
-            }.onFailure { exception ->
+            }.onFailure {
                 val duration = System.currentTimeMillis() - startTime
-                log.error(exception) { "Failed to send ${path.name} to $kindleEmail after ${duration}ms" }
-                throw exception
+                log.error(it) { "Failed to send ${path.name} to $kindleEmail after ${duration}ms" }
+                throw it
             }
         }
     }
