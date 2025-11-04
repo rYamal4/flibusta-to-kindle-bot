@@ -33,6 +33,8 @@ class FlibustaService(val flibustaUrl: String) : IFlibustaService {
         return runCatching {
             val response = client.get("$flibustaUrl/booksearch") {
                 parameter("ask", query)
+                parameter("chs", "on")
+                parameter("chb", "on")
             }
 
             val html = response.bodyAsText()
