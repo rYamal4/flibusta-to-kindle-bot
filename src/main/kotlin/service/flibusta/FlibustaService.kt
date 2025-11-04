@@ -15,7 +15,7 @@ import kotlin.io.path.div
 
 class FlibustaService(val flibustaUrl: String) : IFlibustaService {
     private val log = KotlinLogging.logger { }
-    private val searchCache = mutableMapOf<String, Search>()
+    private val searchCache = mutableMapOf<String, CachedSearch>()
 
     private companion object {
         const val ONE_HOUR_IN_MILLIS = 3600000
@@ -23,7 +23,7 @@ class FlibustaService(val flibustaUrl: String) : IFlibustaService {
 
     override suspend fun getBooks(query: String): SearchResults {
         getFromCache(query)?.let {
-            log.info { "Cache hit for search '$query': ${it.books.size} books, ${it.sequences.size} sequences" }
+            log.info { "Cache hit for search '$query'" }
             return it.searchResults
         }
 
@@ -41,7 +41,7 @@ class FlibustaService(val flibustaUrl: String) : IFlibustaService {
 
             log.info { "Search '$query' found ${books.size} books and ${sequences.size} sequences)" }
 
-            searchCache[query] = Search(query, SearchResults(sequences, books))
+            searchCache[query] = CachedSearch(query, SearchResults(sequences, books))
             log.debug { "Cached search results for '$query' (cache size: ${searchCache.size})" }
 
             SearchResults(sequences, books)
@@ -127,7 +127,7 @@ class FlibustaService(val flibustaUrl: String) : IFlibustaService {
         }.getOrThrow()
     }
 
-    private fun getFromCache(title: String): Search? {
+    private fun getFromCache(title: String): CachedSearch? {
         val searchResult = searchCache[title]
         val currentTime = System.currentTimeMillis()
 
