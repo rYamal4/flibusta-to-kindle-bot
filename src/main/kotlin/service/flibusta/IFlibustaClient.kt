@@ -6,7 +6,7 @@ import io.github.ryamal4.model.SearchResults
 import java.nio.file.Path
 
 interface IFlibustaClient {
-    suspend fun getBooks(title: String): SearchResults
+    suspend fun getBooks(query: String): SearchResults
 
     suspend fun getSequenceBooks(sequenceId: Int): List<BookSummary>
 

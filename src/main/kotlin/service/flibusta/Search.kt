@@ -4,7 +4,7 @@ import io.github.ryamal4.model.SearchResults
 import io.github.ryamal4.model.BookSequence
 import io.github.ryamal4.model.BookSummary
 
-data class SearchResult(
+data class Search(
     val query: String,
     val searchResults: SearchResults,
     val timestamp: Long = System.currentTimeMillis()
