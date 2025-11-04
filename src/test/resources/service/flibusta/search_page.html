@@ -1,0 +1,508 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Поиск книг | Флибуста</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link href="/opds" type="application/atom+xml;profile=opds-catalog" rel="related"/>
+    <link rel="shortcut icon" href="/sites/default/files/bluebreeze_favicon.ico" type="image/x-icon"/>
+    <link rel="apple-touch-icon" href="/sites/default/files/bluebreeze_favicon.ico"/>
+    <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml"
+          title="Поиск книг на Флибусте"/>
+    <link type="text/css" rel="stylesheet" media="all"
+          href="/sites/default/files/css/css_541b6da58ae4dff17f932324504056f9.css"/>
+    <script type="text/javascript" src="/sites/default/files/js/js_65bd89c41ff1e065c43cc27e23c28553.js"></script>
+    <script type="text/javascript">
+        <!--//--><![CDATA[//><!--
+        jQuery.extend(Drupal.settings, {"basePath":"\/","CToolsUrlIsAjaxTrusted":{"\/booksearch?destination=booksearch%3Fask%3D%25D0%25B5%25D1%2580%25D0%25B5%25D1%2581%25D1%258C%2520%25D1%2585%25D0%25BE%25D1%2580%25D1%2583%25D1%2581%25D0%25B0%26chs%3Don%26cha%3Don%26chb%3Don":true}});
+        //--><!]]>
+    </script>
+    <script type="text/javascript"></script>
+    <!--[if lt IE 7.]>
+    <script defer type="text/javascript" src="/pngfix.js"></script>
+    <![endif]-->
+    <meta name="referrer" content="origin-when-cross-origin"/>
+</head>
+
+<body id="second">
+<div id="page" class="one-sidebar">
+
+    <div id="header">
+
+        <div id="logo-title">
+
+            <a href="/" title="Главная">
+                <img src="/sites/default/files/bluebreeze_logo.png" alt="Главная" id="logo"/>
+            </a>
+
+            <h1 id='site-name'>
+                <a href="/" title="Главная">
+                    Флибуста </a>
+            </h1>
+
+
+            <div id='site-slogan'>
+                Книжное братство
+            </div>
+
+        </div>
+
+        <div class="menu withprimarywithsecondary">
+            <div id="primary" class="clear-block">
+                <ul class="links primary-links">
+                    <li class="menu-324 first"><a href="/node/68682" title="">Помощь и контакты</a></li>
+                    <li class="menu-280"><a href="/polka" title="">Книжная полка</a></li>
+                    <li class="menu-371"><a href="/blog" title="">Блоги</a></li>
+                    <li class="menu-306"><a href="/forum" title="">Форумы</a></li>
+                    <li class="menu-295"><a href="/node/4023" title="">Правила и ЧаВо</a></li>
+                    <li class="menu-287 last"><a href="/stat" title="">Статистика</a></li>
+                </ul>
+            </div>
+
+            <div id="secondary" class="clear-block">
+            </div>
+        </div>
+
+
+    </div>
+
+    <div id="container" class=" withright clear-block">
+
+        <div id="main-wrapper">
+            <div id="main" class="clear-block">
+                <div class="breadcrumb"><a href="/">Главная</a></div>
+                <div id="content-top">
+                    <div class="block block-librusec" id="block-librusec-abc">
+                        <div class="blockinner">
+
+
+                            <div class="content">
+                                <table width="100%" style="margin: 0px;">
+                                    <tbody style="border:none;">
+                                    <tr>
+                                        <td align="left"><a href="/a/all">[Все]</a> <a href='/Aa'>[А]</a> <a href='/Bb'>[Б]</a>
+                                            <a href='/V'>[В]</a> <a href='/Gg'>[Г]</a> <a href='/D'>[Д]</a> <a
+                                                    href='/E'>[Е]</a> <a href='/Zh'>[Ж]</a> <a href='/Z'>[З]</a> <a
+                                                    href='/I'>[И]</a> <a href='/Y'>[Й]</a> <a href='/K'>[К]</a> <a
+                                                    href='/L'>[Л]</a> <a href='/M'>[М]</a> <a href='/N'>[Н]</a> <a
+                                                    href='/O'>[О]</a> <a href='/P'>[П]</a> <a href='/R'>[Р]</a> <a
+                                                    href='/Ss'>[С]</a> <a href='/T'>[Т]</a> <a href='/U'>[У]</a> <a
+                                                    href='/F'>[Ф]</a> <a href='/H'>[Х]</a> <a href='/Tz'>[Ц]</a> <a
+                                                    href='/Ch'>[Ч]</a> <a href='/Sh'>[Ш]</a> <a href='/Sz'>[Щ]</a> <a
+                                                    href='/Ee'>[Э]</a> <a href='/Yu'>[Ю]</a> <a href='/Ya'>[Я]</a> <a
+                                                    href='/Other'>[Прочее]</a></td>
+                                        <td align="right"><a href="/rec">[Рекомендации сообщества]</a>&nbsp;&nbsp;&nbsp;<a
+                                                href="http://booktracker.org">[Книжный торрент]</a></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <h1 class="title">Поиск книг</h1>
+                <form action="/booksearch">Ищем: <input name="ask" size="50" value="ересь хоруса">
+                    <input type=submit value="искать!"><br>
+                    <input type="checkbox" name="chs" checked>Серии
+                    <input type="checkbox" name="cha" checked>Авторы
+                    <input type="checkbox" name="chb" checked>Книги
+                    <input type="checkbox" name="chg">Жанры
+                    &nbsp; &nbsp; &nbsp; <a href="http://fbsearch.ru">Полнотекстовый поиск по книгам</a> (внешний
+                    ресурс)
+                </form>
+                <hr>
+                <br>
+                <h3 style="margin-top: 10px; margin-bottom: 5px;"> Найденные серии (1 - 7 из 7):</h3>
+                <ul>
+                    <li><a href="/sequence/23594"><b>Ересь</b> <b>Хоруса</b></a> (54 книги)</li>
+                    <li><a href="/sequence/68156"><b>Ересь</b> <b>Хоруса</b>: Истории</a> (2 книги)</li>
+                    <li><a href="/sequence/67456"><b>Ересь</b> <b>Хоруса</b>: Осада Терры</a> (11 книг)</li>
+                    <li><a href="/sequence/80102"><b>Ересь</b> <b>Хоруса</b>: Персонажи</a> (3 книги)</li>
+                    <li><a href="/sequence/68157"><b>Ересь</b> <b>Хоруса</b>: Повести</a> (7 книг)</li>
+                    <li><a href="/sequence/51304"><b>Ересь</b> <b>Хоруса</b>: Примархи</a> (24 книги)</li>
+                    <li><a href="/sequence/15523">Warhammer 40000: <b>Ересь</b> <b>Хоруса</b></a> (130 книг)</li>
+                </ul>
+                <h3 style="margin-top: 10px; margin-bottom: 5px;"> Найденные книги (1 - 4 из 4):</h3>
+                <ul>
+                    <li><a href="/b/475515"><b>Ересь</b> <b>Хоруса</b>: Омнибус. Том 3</a> - <a href="/a/18529">Дэн
+                        Абнетт</a>, <a href="/a/20642">Джеймс Сваллоу</a>, <a href="/a/21545">Ник Кайм</a>, <a
+                            href="/a/25338">Бен Каунтер</a>, <a href="/a/25749">Энтони Рейнольдс</a>, <a
+                            href="/a/52875">Митчел Сканлон</a>, <a href="/a/60264">Аарон Дембски-Боуден</a>, <a
+                            href="/a/62143">Майк Ли</a>, <a href="/a/83197">Гэв Торп</a>, <a href="/a/87170">Крис
+                        Райт</a>, <a href="/a/102378">Роб Сандерс</a>, <a href="/a/102383">Мэттью Фаррер</a>, <a
+                            href="/a/104125">Энди Смайли</a>, <a href="/a/104676">Джон Френч</a>, <a href="/a/104971">Кристиан
+                        Данн</a>, <a href="/a/107816">Лори Голдинг</a>, <a href="/a/132255">Гай Хейли</a>, <a
+                            href="/a/189790">Грэхем МакНилл</a>, <a href="/a/189791">Дэвид Аннандейл</a></li>
+                    <li><a href="/b/468804"><b>Ересь</b> <b>Хоруса</b>: Омнибус. Том I</a> - <a href="/a/18529">Дэн
+                        Абнетт</a>, <a href="/a/20642">Джеймс Сваллоу</a>, <a href="/a/21545">Ник Кайм</a>, <a
+                            href="/a/25338">Бен Каунтер</a>, <a href="/a/25749">Энтони Рейнольдс</a>, <a
+                            href="/a/52875">Митчел Сканлон</a>, <a href="/a/60264">Аарон Дембски-Боуден</a>, <a
+                            href="/a/62143">Майк Ли</a>, <a href="/a/83197">Гэв Торп</a>, <a href="/a/87170">Крис
+                        Райт</a>, <a href="/a/102378">Роб Сандерс</a>, <a href="/a/102383">Мэттью Фаррер</a>, <a
+                            href="/a/104125">Энди Смайли</a>, <a href="/a/104676">Джон Френч</a>, <a href="/a/104971">Кристиан
+                        Данн</a>, <a href="/a/107816">Лори Голдинг</a>, <a href="/a/132255">Гай Хейли</a>, <a
+                            href="/a/189790">Грэхем МакНилл</a>, <a href="/a/189791">Дэвид Аннандейл</a></li>
+                    <li><a href="/b/465920"><b>Ересь</b> <b>Хоруса</b>: Омнибус. Том II</a> - <a href="/a/18529">Дэн
+                        Абнетт</a>, <a href="/a/20642">Джеймс Сваллоу</a>, <a href="/a/21545">Ник Кайм</a>, <a
+                            href="/a/25338">Бен Каунтер</a>, <a href="/a/25749">Энтони Рейнольдс</a>, <a
+                            href="/a/52875">Митчел Сканлон</a>, <a href="/a/60264">Аарон Дембски-Боуден</a>, <a
+                            href="/a/62143">Майк Ли</a>, <a href="/a/83197">Гэв Торп</a>, <a href="/a/87170">Крис
+                        Райт</a>, <a href="/a/102378">Роб Сандерс</a>, <a href="/a/102383">Мэттью Фаррер</a>, <a
+                            href="/a/104125">Энди Смайли</a>, <a href="/a/104676">Джон Френч</a>, <a href="/a/107816">Лори
+                        Голдинг</a>, <a href="/a/132255">Гай Хейли</a>, <a href="/a/163618">К.З. Данн</a>, <a
+                            href="/a/189790">Грэхем МакНилл</a>, <a href="/a/189791">Дэвид Аннандейл</a></li>
+                    <li><a href="/b/478174"><b>Ересь</b> <b>Хоруса</b>: Омнибус. Том IV</a> - <a href="/a/18529">Дэн
+                        Абнетт</a>, <a href="/a/20642">Джеймс Сваллоу</a>, <a href="/a/21545">Ник Кайм</a>, <a
+                            href="/a/25338">Бен Каунтер</a>, <a href="/a/25749">Энтони Рейнольдс</a>, <a
+                            href="/a/52875">Митчел Сканлон</a>, <a href="/a/60264">Аарон Дембски-Боуден</a>, <a
+                            href="/a/62143">Майк Ли</a>, <a href="/a/83197">Гэв Торп</a>, <a href="/a/87170">Крис
+                        Райт</a>, <a href="/a/102378">Роб Сандерс</a>, <a href="/a/102383">Мэттью Фаррер</a>, <a
+                            href="/a/104125">Энди Смайли</a>, <a href="/a/104676">Джон Френч</a>, <a href="/a/107816">Лори
+                        Голдинг</a>, <a href="/a/132255">Гай Хейли</a>, <a href="/a/163618">К.З. Данн</a>, <a
+                            href="/a/179046">Алан Меррет</a>, <a href="/a/189790">Грэхем МакНилл</a>, <a
+                            href="/a/189791">Дэвид Аннандейл</a></li>
+                </ul>
+                <br></div>
+        </div>
+
+
+        <div id="sidebar-right" class="sidebar">
+            <div class="block block-librusec" id="block-librusec-booksearch">
+                <div class="blockinner">
+
+                    <h2 class="title"> Поиск книг </h2>
+                    <div class="content">
+                        <br>
+                        <form action="/booksearch"><input style="width: 70%" name=ask><input type=submit
+                                                                                             value="искать!"></form>
+                        <div class="item-list">
+                            <ul style="margin-top:7px; font-size:90%">
+                                <li><a href="/book">Расширенный поиск</a></li>
+                                <li><a style="background-position: right center; background-repeat: no-repeat;
+                                      background-image: linear-gradient(transparent, transparent), url('data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%3E%3Cg%20transform%3D%22translate%28-826.429%20-698.791%29%22%3E%3Crect%20width%3D%225.982%22%20height%3D%225.982%22%20x%3D%22826.929%22%20y%3D%22702.309%22%20fill%3D%22%23fff%22%20stroke%3D%22%2306c%22%2F%3E%3Cg%3E%3Cpath%20d%3D%22M831.194%20698.791h5.234v5.391l-1.571%201.545-1.31-1.31-2.725%202.725-2.689-2.689%202.808-2.808-1.311-1.311z%22%20fill%3D%22%2306f%22%2F%3E%3Cpath%20d%3D%22M835.424%20699.795l.022%204.885-1.817-1.817-2.881%202.881-1.228-1.228%202.881-2.881-1.851-1.851z%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E');
+                                      padding-right: 13px;"
+                                       href="http://fbsearch.ru">Полнотекстовый поиск по книгам</a></li>
+                                <li><a href="/comp">Сравнение книг</a></li>
+                                <li><a href="/stat/b">Популярные книги</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="block block-user" id="block-user-0">
+                <div class="blockinner">
+
+                    <h2 class="title"> Вход в систему </h2>
+                    <div class="content">
+                        <form action="/booksearch?destination=booksearch%3Fask%3D%25D0%25B5%25D1%2580%25D0%25B5%25D1%2581%25D1%258C%2520%25D1%2585%25D0%25BE%25D1%2580%25D1%2583%25D1%2581%25D0%25B0%26chs%3Don%26cha%3Don%26chb%3Don"
+                              accept-charset="UTF-8" method="post" id="user-login-form">
+                            <div>
+                                <div class="form-item" id="edit-openid-identifier-wrapper">
+                                    <label for="edit-openid-identifier">Войти по OpenID: </label>
+                                    <input type="text" maxlength="255" name="openid_identifier"
+                                           id="edit-openid-identifier" size="13" value="" class="form-text"/>
+                                    <div class="description"><a href="http://openid.net/">Что такое OpenID?</a></div>
+                                </div>
+                                <div class="form-item" id="edit-name-wrapper">
+                                    <label for="edit-name">Имя пользователя: <span class="form-required"
+                                                                                   title="Обязательное поле">*</span></label>
+                                    <input type="text" maxlength="60" name="name" id="edit-name" size="15" value=""
+                                           class="form-text required"/>
+                                </div>
+                                <div class="form-item" id="edit-pass-wrapper">
+                                    <label for="edit-pass">Пароль: <span class="form-required"
+                                                                         title="Обязательное поле">*</span></label>
+                                    <input type="password" name="pass" id="edit-pass" maxlength="60" size="15"
+                                           class="form-text required"/>
+                                </div>
+                                <div class="form-item" id="edit-persistent-login-wrapper">
+                                    <label class="option" for="edit-persistent-login"><input type="checkbox"
+                                                                                             name="persistent_login"
+                                                                                             id="edit-persistent-login"
+                                                                                             value="1"
+                                                                                             class="form-checkbox"/>
+                                        Запомнить меня</label>
+                                </div>
+                                <input type="submit" name="op" id="edit-submit" value="Вход в систему"
+                                       class="form-submit"/>
+                                <input type="hidden" name="form_build_id"
+                                       id="form-gTpaNz9hmWX_Vo3rX3-mzYgqkJgMSwZG2ExjoJsRFec"
+                                       value="form-gTpaNz9hmWX_Vo3rX3-mzYgqkJgMSwZG2ExjoJsRFec"/>
+                                <input type="hidden" name="form_id" id="edit-user-login-block"
+                                       value="user_login_block"/>
+                                <input type="hidden" name="openid.return_to" id="edit-openid.return-to"
+                                       value="https://m.flibusta.is/openid/authenticate?destination=booksearch%3Fask%3D%25D0%25B5%25D1%2580%25D0%25B5%25D1%2581%25D1%258C%2520%25D1%2585%25D0%25BE%25D1%2580%25D1%2583%25D1%2581%25D0%25B0%26chs%3Don%26cha%3Don%26chb%3Don"/>
+                                <div class="item-list">
+                                    <ul>
+                                        <li class="openid-link first"><a href="/%2523">Войти по OpenID</a></li>
+                                        <li class="user-link last"><a href="/%2523">Скрыть вход по OpenID</a></li>
+                                    </ul>
+                                </div>
+                                <div class="item-list">
+                                    <ul>
+                                        <li class="first"><a href="/user/register"
+                                                             title="Создать новую учетную запись пользователя.">Регистрация</a>
+                                        </li>
+                                        <li class="last"><a href="/user/password"
+                                                            title="Запросить новый пароль по электронной почте.">Забыли
+                                            пароль?</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            <div class="block block-user" id="block-user-1">
+                <div class="blockinner">
+
+                    <h2 class="title"> Навигация </h2>
+                    <div class="content">
+                        <ul class="menu">
+                            <li class="expanded first"><a href="/b" title="">Книги</a>
+                                <ul class="menu">
+                                    <li class="leaf first"><a href="/new">Последние поступления</a></li>
+                                    <li class="leaf"><a href="/g">Жанры</a></li>
+                                    <li class="leaf"><a href="/a">Авторы</a></li>
+                                    <li class="leaf"><a href="/s">Сериалы</a></li>
+                                    <li class="leaf"><a href="/node/55088" title="">ЧаВо по книгам</a></li>
+                                    <li class="leaf"><a href="/rec" title="">Рекомендации сообщества</a></li>
+                                    <li class="leaf last"><a href="/comp" title="">Сравнение книг</a></li>
+                                </ul>
+                            </li>
+                            <li class="expanded"><a href="/" title="">Иное</a>
+                                <ul class="menu">
+                                    <li class="leaf first"><a href="/dostup" title="">Доступ через блок (FAQ)</a></li>
+                                    <li class="leaf"><a href="/node/68981" title="">Печать книг по требованию</a></li>
+                                    <li class="leaf"><a href="/node/68684" title="">Авторы на Флибусте</a></li>
+                                    <li class="leaf"><a href="/node/63338" title="">Синхронизация библиотек</a></li>
+                                    <li class="leaf"><a href="/node/55618" title="">Прочти эти стихи...</a></li>
+                                    <li class="leaf"><a href="/node/184794" title="">Старые советские учебники</a></li>
+                                    <li class="leaf"><a href="/node/95809"
+                                                        title="Архив обсуждений на блогофорумах, рассортированный по категориям">Каталог
+                                        книжных тем</a></li>
+                                    <li class="leaf"><a href="/node/65671"
+                                                        title="Сообщения о дублях книг и обсуждения объединений">Удаление
+                                        двойников</a></li>
+                                    <li class="leaf"><a href="/node/38339" title="">Востребованные книги</a></li>
+                                    <li class="leaf last"><a href="/node/55360" title="">Ищу книгу!</a></li>
+                                </ul>
+                            </li>
+                            <li class="expanded"><a href="/" title="">Библиотека</a>
+                                <ul class="menu">
+                                    <li class="leaf first"><a href="http://mobile.flibusta.is/" title="">Мобильная
+                                        версия</a></li>
+                                    <li class="leaf"><a href="/sql/" title="">Файлы базы данных</a></li>
+                                    <li class="leaf"><a href="/daily/" title="">Файлы обновлений</a></li>
+                                    <li class="leaf"><a href="/catalog/catalog.zip" title="">Скачать каталог</a></li>
+                                    <li class="leaf last"><a href="/node/64756" title="">Скачать библиотеку целиком</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="collapsed"><a href="/user" title="">Учётные данные</a></li>
+                            <li class="expanded last"><a href="/" title="">Другие библиотеки</a>
+                                <ul class="menu">
+                                    <li class="leaf first"><a href="https://libgen.gs/" title="">Научная литература</a>
+                                    </li>
+                                    <li class="leaf"><a href="http://sci-hub.se" title="">Научные статьи</a></li>
+                                    <li class="leaf"><a href="http://libgen.lc/foreignfiction/" title="">Иностранная
+                                        литература</a></li>
+                                    <li class="leaf"><a href="https://z-library.sk/" title=""> Z-Library</a></li>
+                                    <li class="leaf"><a href="http://cyberleninka.ru" title="">Киберленинка</a></li>
+                                    <li class="leaf"><a href="http://libgen.lc/comics/" title="">Архив комиксов</a></li>
+                                    <li class="leaf"><a href="http://magzdb.org/" title="">Вся периодика мира</a></li>
+                                    <li class="leaf last"><a href="/node/72715" title="">Ссылки на прочие ресурсы</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+            <div class="block block-comment" id="block-comment-0">
+                <div class="blockinner">
+
+                    <h2 class="title"><a href="/tracker">Последние комментарии</a></h2>
+                    <div class="content">
+                        <div class="item-list">
+                            <ul>
+                                <li class="first"><a href="/comment/3643544#comment-3643544">Re: &quot;Хотят ли русские
+                                    войны?&quot; (с)</a><br/>3 минуты 48 секунд назад
+                                </li>
+                                <li><a href="/comment/3643543#comment-3643543">Re: &quot;Хотят ли русские войны?&quot;
+                                    (с)</a><br/>7 минут 34 секунды назад
+                                </li>
+                                <li><a href="/comment/3643542#comment-3643542">Re: &quot;Хотят ли русские войны?&quot;
+                                    (с)</a><br/>12 минут 1 секунда назад
+                                </li>
+                                <li><a href="/comment/3643540#comment-3643540">Re: &quot;Хотят ли русские войны?&quot;
+                                    (с)</a><br/>19 минут 59 секунд назад
+                                </li>
+                                <li><a href="/comment/3643539#comment-3643539">Re: &quot;Хотят ли русские войны?&quot;
+                                    (с)</a><br/>24 минуты 26 секунд назад
+                                </li>
+                                <li><a href="/comment/3643538#comment-3643538">Re: &quot;Хотят ли русские войны?&quot;
+                                    (с)</a><br/>30 минут 31 секунда назад
+                                </li>
+                                <li><a href="/comment/3643535#comment-3643535">Re: &quot;Хотят ли русские войны?&quot;
+                                    (с)</a><br/>33 минуты 1 секунда назад
+                                </li>
+                                <li><a href="/comment/3643530#comment-3643530">Re: &quot;Хотят ли русские войны?&quot;
+                                    (с)</a><br/>46 минут 49 секунд назад
+                                </li>
+                                <li><a href="/comment/3643526#comment-3643526">Их нравы</a><br/>51 минута 38 секунд
+                                    назад
+                                </li>
+                                <li class="last"><a href="/comment/3643523#comment-3643523">Re: &quot;Хотят ли русские
+                                    войны?&quot; (с)</a><br/>59 минут 20 секунд назад
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="block block-librusec" id="block-librusec-polka">
+                <div class="blockinner">
+
+                    <h2 class="title"><a href="/polka/show/all">Впечатления о книгах</a></h2>
+                    <div class="content">
+                        <div class="container_378734"><b><a href="/polka/show/31806">renanim</a></b> про <a
+                                href="/a/73628">Негатин</a>: <a href="/b/378734">Лишнее золото. Наедине с мечтой</a>
+                            <br>читаемо и даже очень
+                            <hr>
+                        </div>
+                        <div class="container_781059"><b><a href="/polka/show/1000513">Lopaant</a></b> про <a
+                                href="/a/232748">Эймс</a>: <a href="/b/781059">Попаданка Для Дракона, или Один Шанс На
+                            Двоих</a> <br>Лёгкая книга на вечер: читается быстро, не раздражает, но и не цепляет.
+                            <br>Для меня это скорее 2,5.
+                            <br>Сюжет предсказуемый и немного плоский, хотя в целом приятный.
+                            <br>Интересная концепция попаданчества из одного фэнтези мира в другой фэнтези мир.
+                            <br>Политика слабая. Везде злые императоры и войны. Но учитывая, что повествование от ЖГГ,
+                            то норм, типа много ли женщины понимают во всем этом. После завершения любовной линии
+                            интерес пропал, финал не дочитала.
+                            <br>Слишком много «рассказано» и мало «показано», поэтому временами скучно.
+                            <br>Но если не ожидать от книги слишком многого, то можно провести вполне приятный вечер, за
+                            что автору спасибо.
+                            <hr>
+                        </div>
+                        <div class="container_847495"><b><a href="/polka/show/89976">shvm57</a></b> про <a
+                                href="/a/246199">Berest</a>: <a href="/b/847495">Великий диктатор. Книга 4</a> <br>Читать
+                            можно, написано неплохо.
+                            <hr>
+                        </div>
+                        <div class="container_508857"><b><a href="/polka/show/144083">badbag</a></b> про <a
+                                href="/a/193252">Джэка</a>: <a href="/b/508857">Участь</a> <br>Шкловский. нахрен твои
+                            переводы тут не вперлись. Понимаю. что ты открыл для себя онлайн-переводчик. но мы все умеем
+                            ими пользоваться. Забаньте его уже. чтобы не засирал библиотеку
+                            <hr>
+                        </div>
+                        <div class="container_840959"><b><a href="/polka/show/1019833">BorShi</a></b> про <a
+                                href="/a/290383">Молотов</a>: <a href="/b/840959">Проклятый Лекарь. Том 2</a> <br>Неплохо.
+                            Но бредово.
+                            <hr>
+                        </div>
+                        <div class="container_811242"><b><a href="/polka/show/1301915">mnogoprochitatel</a></b> про <a
+                                href="/a/36819">Вязовский</a>: <a href="/b/811242">Уроки черного бусидо Димы
+                            Сабурова</a> <br>Идиотическая графомания
+                            <hr>
+                        </div>
+                        <div class="container_846292"><b><a href="/polka/show/1051064">шаньщань</a></b> про <a
+                                href="/a/315448">Владимирова</a>: <a href="/b/846292">Мой папа - медведь</a> <br>Замечательная
+                            книга! Спасибо ❤️
+                            <hr>
+                        </div>
+                        <div class="container_846422"><b><a href="/polka/show/890861">protezsovesti</a></b> про <a
+                                href="/a/284383">Боярский</a>: <a href="/b/846422">Неудержимый. Книга XL</a> <br>прочитал
+                            где-то с десяток томов...и вот дочитался до момента, где гг с переломанными костями, но
+                            скрепленный за счёт магии мышечным каркасом продолжает бегать...более того, гг ещё и
+                            использует некую магическую нить, которая пружинит при его высотных прыжках и запускает его
+                            в полёт...при этом нить, хотя и тонкая не режет его плоть... и тут я остановился в чтении и
+                            задумался: я взрослый мужик, читаю этот сумбурный бред. короче, эта бессмыслица пагубно
+                            влияет на человеческий мозг, она заразна...бегите, люди... :):):)
+                            <hr>
+                        </div>
+                        <div class="container_608984"><b><a href="/polka/show/388250">k-andrey</a></b> про <a
+                                href="/a/19197">Гранже</a>: <a href="/b/608984">День Праха</a> <br>На самом деле, это
+                            увлекательная и эмоциональная книга. Оценка: 5/5.
+                            <hr>
+                        </div>
+                        <div class="container_641231"><b><a href="/polka/show/23690">Nuclear</a></b> про <a
+                                href="/a/6300">Кош</a>: <a href="/b/641231">Ученик медиума</a> <br>Читабельно.
+                            <hr>
+                        </div>
+                        <a href="/polka/show/all">Все впечатления</a></div>
+
+                </div>
+            </div>
+            <div class="block block-librusec" id="block-librusec-knapsack">
+                <div class="blockinner">
+
+                    <h2 class="title"> Рюкзачок </h2>
+                    <div class="content">
+                        <label>Перехватывать закачки
+                            <input type="checkbox" id="knapsack-intercept" style="margin:0;padding:1px"
+                                   onclick="onKnapsackIntercept(this.checked)"
+                            >
+                        </label>
+
+                        <p style="margin:0; margin-top:8px; margin-bottom:7px">
+                            <input type="button" id="knapsack-get-list"
+                                   style="width:75px;margin-bottom:4px"
+                                   value="Список"
+                                   title="список для качалки"
+                                   onclick="onKnapsackList()"
+                            >
+
+                            <input type="button" id="knapsack-clear"
+                                   style="width:75px;margin-bottom:4px"
+                                   value="Очистить"
+                                   title="удалить все"
+                                   onclick="onKnapsackClear()"
+                            >
+                        </p>
+
+                        <div id="knapsack-list"
+                             style="height:98px; width:97%; overflow:auto;padding-left:1px; border:inset 1px #AEAEAE; font:normal normal normal 11px/14px 'Courier New','Lucida Console','BatangChe',monospace">
+                        </div>
+
+                        <p style="margin:0; margin-top:5px; margin-bottom:5px">
+                            Всего книг: <span id="knapsack-count" style="font-weight: bold;">0</span>.
+                        </p>
+
+                        <p style="margin:0; margin-top:5px">
+                            <a id="knapsack-add-checked" href="#" onclick="onKnapsackAddSelected();return false;">(добавить
+                                все выбранное)</a>
+                        </p>
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="footer">
+        Fueled by Johannes Gensfleisch zur Laden zum Gutenberg      <!--<div class="block block-system" id="block-system-0">
+  <div class="blockinner">
+
+
+    <div class="content">
+      <a href="http://drupal.org"><img src="/misc/powered-blue-80x15.png" alt="Powered by Pressflow, an open source content management system" title="Powered by Pressflow, an open source content management system" width="80" height="15" /></a>    </div>
+
+  </div>
+</div>
+-->
+    </div>
+
+
+</div>
+</body>
+</html>
