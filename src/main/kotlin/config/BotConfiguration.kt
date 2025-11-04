@@ -30,7 +30,7 @@ data class BotConfiguration(
                 senderEmail = getEnv(dotenv, "SENDER_EMAIL"),
                 senderPassword = getEnv(dotenv, "SENDER_PASSWORD"),
                 flibustaUrl = getEnv(dotenv, "FLIBUSTA_URL"),
-                isPublicBot = getEnv(dotenv, "IS_SINGLE_USER").toBoolean()
+                isPublicBot = getEnv(dotenv, "IS_PUBLIC_BOT").toBoolean()
             )
 
             log.info { "Configuration loaded successfully: userId=${config.telegramUserId}, smtp=${config.smtp}, flibusta=${config.flibustaUrl}" }

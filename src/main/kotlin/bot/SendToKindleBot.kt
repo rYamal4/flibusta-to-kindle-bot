@@ -115,8 +115,8 @@ class SendToKindleBot(
                         val totalItems = searchResults.sequences.size + searchResults.books.size
                         val totalPages = (totalItems + pageSize - 1) / pageSize
 
-                        val sequencesOnPage = if (page == 0) searchResults.sequences else emptyList()
-                        val booksStartIndex = maxOf(0, page * pageSize - searchResults.sequences.size)
+                        val sequencesOnPage = searchResults.sequences
+                        val booksStartIndex = maxOf(0, 0 - searchResults.sequences.size)
                         val booksOnPage =
                             searchResults.books.drop(booksStartIndex).take(maxOf(0, pageSize - sequencesOnPage.size))
 
