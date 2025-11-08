@@ -26,7 +26,7 @@ class SendToKindleBot(
     private val kindleService: KindleService,
     private val dispatcher: CoroutineDispatcher
 ) {
-    private val pageSize = 5
+    private val pageSize = 10
     private val searchSessions = mutableMapOf<String, String>()
     private val log = KotlinLogging.logger { }
 
@@ -123,7 +123,7 @@ class SendToKindleBot(
                         val totalItems = searchResults.sequences.size + searchResults.books.size
                         val totalPages = (totalItems + pageSize - 1) / pageSize
 
-                        val sequencesOnPage = searchResults.sequences
+                        val sequencesOnPage = searchResults.sequences.take(pageSize)
                         val booksStartIndex = maxOf(0, 0 - searchResults.sequences.size)
                         val booksOnPage =
                             searchResults.books.drop(booksStartIndex).take(maxOf(0, pageSize - sequencesOnPage.size))
@@ -274,7 +274,8 @@ class SendToKindleBot(
 
                             log.debug { "User $userId: Navigating to page $page for query '$searchQuery'" }
 
-                            val sequencesOnPage = if (page == 0) sequences else emptyList()
+                            val sequenceStartIndex = page * pageSize
+                            val sequencesOnPage = sequences.drop(sequenceStartIndex).take(pageSize)
                             val booksStartIndex = maxOf(0, page * pageSize - sequences.size)
                             val booksOnPage =
                                 books.drop(booksStartIndex).take(maxOf(0, pageSize - sequencesOnPage.size))
