@@ -48,14 +48,15 @@ class SendToKindleBot(
                 bot.sendMessage(
                     chatId = ChatId.fromId(message.chat.id),
                     text = """
-                    Чтобы найти книгу, просто напишите название книги и отправьте сообщение боту.
+                    Просто отправьте название книги, и я её найду на Флибусте.
 
-                    Перед использованием бота, установите почту, связанную с вашим аккаунтом Kindle с помощью команды /email и добавьте ${config.senderEmail} в список одобренных email адресов на странице настроек устройства в разделе Personal Document Settings.
+                    Перед первым использованием:
+                    1. Установите почту вашего Kindle командой /email
+                    2. Добавьте ${config.senderEmail} в одобренные адреса в настройках Kindle
 
-                    Команды:
-
-                    /start - информация о боте
-                    /email your@kindle.com - добавление почты вашего аккаунта Kindle
+                    Доступные команды:
+                    /start - справка по боту
+                    /email your@kindle.com - установить почту Kindle
 
                     """.plus(emailInfo).trimIndent()
                 )
