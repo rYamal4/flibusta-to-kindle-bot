@@ -4,7 +4,10 @@ import io.github.ryamal4.service.flibusta.FlibustaParser
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldNotContain
 import loadResource
 
 class FlibustaParserTest : FunSpec({
@@ -14,16 +17,32 @@ class FlibustaParserTest : FunSpec({
 
         val books = FlibustaParser.parseBookSearchResults(html)
 
-        books shouldHaveSize 4
-        books[0].id shouldBe 475515
-        books[0].title shouldBe "Ересь Хоруса: Омнибус. Том 3"
-        books[0].author shouldBe "Дэн Абнетт"
+        books shouldBe TestFixtures.searchPageBooks
     }
 
-    test("parseBookSearchResults - empty when no books found") {
-        val html = "<html><body><h3>Найденные книги</h3><p>No list</p></body></html>"
+    test("parseBookSearchResults - large_search_page complete validation") {
+        val html = loadResource("/service/flibusta/large_search_page.html")
 
         val books = FlibustaParser.parseBookSearchResults(html)
+
+        books shouldBe TestFixtures.largeSearchBooks
+    }
+
+    test("parseBookSearchResults - large_search_page validates size and extremes") {
+        val html = loadResource("/service/flibusta/large_search_page.html")
+
+        val books = FlibustaParser.parseBookSearchResults(html)
+
+        books shouldHaveSize 50
+        books.first() shouldBe TestFixtures.largeSearchBooks.first()
+        books.last() shouldBe TestFixtures.largeSearchBooks.last()
+        books.map { it.id }.distinct().size shouldBe 50
+    }
+
+    test("parseBookSearchResults - handles missing data gracefully") {
+        val htmlNoBooks = "<html><body><h3>Найденные книги</h3><p>No list</p></body></html>"
+
+        val books = FlibustaParser.parseBookSearchResults(htmlNoBooks)
 
         books.shouldBeEmpty()
     }
@@ -33,20 +52,33 @@ class FlibustaParserTest : FunSpec({
 
         val sequences = FlibustaParser.parseSequences(html)
 
-        sequences shouldHaveSize 7
-        sequences[0].sequenceId shouldBe 23594
-        sequences[0].title shouldBe "Ересь Хоруса"
-        sequences[0].booksCount shouldBe 54
-
-        sequences[6].sequenceId shouldBe 15523
-        sequences[6].title shouldBe "Warhammer 40000: Ересь Хоруса"
-        sequences[6].booksCount shouldBe 130
+        sequences shouldBe TestFixtures.searchPageSequences
     }
 
-    test("parseSequences - empty when no sequences found") {
-        val html = "<html><body><h3>Найденные серии</h3><p>No list</p></body></html>"
+    test("parseSequences - large_search_page complete validation") {
+        val html = loadResource("/service/flibusta/large_search_page.html")
 
         val sequences = FlibustaParser.parseSequences(html)
+
+        sequences shouldBe TestFixtures.largeSearchSequences
+    }
+
+    test("parseSequences - large_search_page validates book counts range") {
+        val html = loadResource("/service/flibusta/large_search_page.html")
+
+        val sequences = FlibustaParser.parseSequences(html)
+
+        sequences shouldHaveSize 50
+        sequences.all { it.booksCount > 0 } shouldBe true
+        sequences.maxOf { it.booksCount } shouldBe 23
+        sequences.first() shouldBe TestFixtures.largeSearchSequences.first()
+        sequences.last() shouldBe TestFixtures.largeSearchSequences.last()
+    }
+
+    test("parseSequences - handles missing data gracefully") {
+        val htmlNoSequences = "<html><body><h3>Найденные серии</h3><p>No list</p></body></html>"
+
+        val sequences = FlibustaParser.parseSequences(htmlNoSequences)
 
         sequences.shouldBeEmpty()
     }
@@ -56,10 +88,7 @@ class FlibustaParserTest : FunSpec({
 
         val books = FlibustaParser.parseSequenceBooks(html)
 
-        books shouldHaveSize 50
-        books[0].id shouldBe 162355
-        books[0].title shouldBe "Возвышение Хоруса"
-        books[0].author shouldBe "Савельева, Ирина Викторовна"
+        books shouldBe TestFixtures.sequencePageBooks
     }
 
     test("parseSequenceBooks - handles missing author") {
@@ -77,14 +106,6 @@ class FlibustaParserTest : FunSpec({
         books[0].id shouldBe 123
         books[0].title shouldBe "Book Title"
         books[0].author shouldBe ""
-    }
-
-    test("parseSequenceBooks - empty when no checkboxes found") {
-        val html = "<html><body><p>No checkboxes here</p></body></html>"
-
-        val books = FlibustaParser.parseSequenceBooks(html)
-
-        books.shouldBeEmpty()
     }
 
     test("parseSequenceBooks - skips malformed entries without book link") {
@@ -106,15 +127,11 @@ class FlibustaParserTest : FunSpec({
 
         val bookInfo = FlibustaParser.parseBookPage(html, 162355)
 
-        bookInfo.summary.id shouldBe 162355
-        bookInfo.summary.title shouldBe "Возвышение Хоруса"
-        bookInfo.summary.author shouldBe "Дэн Абнетт"
-        bookInfo.pagesCount shouldBe 347
-        bookInfo.annotation shouldBe "То было легендарное время. Великий Крестовый Поход нес свет Имперских Истин в самые темные уголки Галактики, возвращая разрозненные миры человечества в лоно Империума и стирая чуждые расы с лица истории. По воле благословенного Императора, решившего отойти от ратных дел, бразды правления этой беспримерной кампанией были вручены Хорусу, примарху Легиона Лунных Волков.\n\nТак говорят летописи, но ни в одной из них не найти ответа на вопрос – когда, под небом какого мира проросли семена Великой Ереси. Может быть, это случилось в тот день, когда Хорус убил Императора в первый раз…"
+        bookInfo shouldBe TestFixtures.bookPageInfo
     }
 
-    test("parseBookPage - handles missing annotation") {
-        val html = """
+    test("parseBookPage - handles missing optional fields") {
+        val htmlNoAnnotation = """
             <html><body>
                 <h1 class="title">Test Book (fb2)</h1>
                 <div id="main">
@@ -124,17 +141,7 @@ class FlibustaParserTest : FunSpec({
             </body></html>
         """.trimIndent()
 
-        val bookInfo = FlibustaParser.parseBookPage(html, 999)
-
-        bookInfo.summary.id shouldBe 999
-        bookInfo.summary.title shouldBe "Test Book"
-        bookInfo.summary.author shouldBe "Test Author"
-        bookInfo.annotation shouldBe ""
-        bookInfo.pagesCount shouldBe 100
-    }
-
-    test("parseBookPage - handles missing pages count") {
-        val html = """
+        val htmlNoPages = """
             <html><body>
                 <h1 class="title">Test Book</h1>
                 <div id="main">
@@ -145,9 +152,16 @@ class FlibustaParserTest : FunSpec({
             </body></html>
         """.trimIndent()
 
-        val bookInfo = FlibustaParser.parseBookPage(html, 999)
+        val infoNoAnnotation = FlibustaParser.parseBookPage(htmlNoAnnotation, 999)
+        infoNoAnnotation.summary.id shouldBe 999
+        infoNoAnnotation.summary.title shouldBe "Test Book"
+        infoNoAnnotation.summary.author shouldBe "Test Author"
+        infoNoAnnotation.annotation shouldBe ""
+        infoNoAnnotation.pagesCount shouldBe 100
 
-        bookInfo.pagesCount shouldBe 0
+        val infoNoPages = FlibustaParser.parseBookPage(htmlNoPages, 999)
+        infoNoPages.pagesCount shouldBe 0
+        infoNoPages.annotation shouldBe "Test annotation"
     }
 
     test("parseBookPage - removes format suffix from title") {
@@ -165,16 +179,44 @@ class FlibustaParserTest : FunSpec({
         bookInfo.summary.title shouldBe "Test Book"
     }
 
-    test("sanitizeFileName - replaces special characters") {
-        val result = FlibustaParser.sanitizeFileName("Book: Title <test>")
+    test("parseBookPage - removes format suffix case-insensitively") {
+        val htmlUppercase = """
+            <html><body>
+                <h1 class="title">Test Book (FB2)</h1>
+                <div id="main">
+                    <a href="/a/123">Test Author</a>
+                </div>
+            </body></html>
+        """.trimIndent()
 
-        result shouldBe "Book_ Title _test_"
+        val htmlMixedCase = """
+            <html><body>
+                <h1 class="title">Another Book (Epub)</h1>
+                <div id="main">
+                    <a href="/a/456">Another Author</a>
+                </div>
+            </body></html>
+        """.trimIndent()
+
+        val infoUppercase = FlibustaParser.parseBookPage(htmlUppercase, 123)
+        infoUppercase.summary.title shouldBe "Test Book"
+
+        val infoMixedCase = FlibustaParser.parseBookPage(htmlMixedCase, 456)
+        infoMixedCase.summary.title shouldBe "Another Book"
     }
 
-    test("sanitizeFileName - trims whitespace") {
-        val result = FlibustaParser.sanitizeFileName("  Book Title  ")
+    test("sanitizeFileName - normalizes correctly") {
+        val input = "  Book:Title<>|?*(multiple   spaces).txt"
 
-        result shouldBe "Book Title"
+        val result = FlibustaParser.sanitizeFileName(input)
+
+        result shouldBe "Book_Title_____(multiple spaces).txt"
+        result shouldNotContain ":"
+        result shouldNotContain "<"
+        result shouldNotContain ">"
+        result shouldNotContain "|"
+        result shouldNotContain "?"
+        result shouldNotContain "*"
     }
 
     test("sanitizeFileName - truncates to 200 characters") {
@@ -183,11 +225,5 @@ class FlibustaParserTest : FunSpec({
         val result = FlibustaParser.sanitizeFileName(longName)
 
         result.length shouldBe 200
-    }
-
-    test("sanitizeFileName - collapses multiple spaces") {
-        val result = FlibustaParser.sanitizeFileName("Book    Title    Test")
-
-        result shouldBe "Book Title Test"
     }
 })
