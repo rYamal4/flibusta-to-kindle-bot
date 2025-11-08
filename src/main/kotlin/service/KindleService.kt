@@ -14,15 +14,14 @@ class KindleService(
     val smtp: String,
     val senderEmail: String,
     val senderPassword: String,
-    val kindleEmail: String,
     val dispatcher: CoroutineContext
 ) : IKindleService {
-    private val log = KotlinLogging.logger {  }
+    private val log = KotlinLogging.logger { }
 
-    override suspend fun sendToKindle(path: Path) {
-        val fileSize = path.toFile().length()
+    override suspend fun sendToKindle(book: Path, kindleEmail: String) {
+        val fileSize = book.toFile().length()
         val fileSizeKB = fileSize / 1024
-        log.info { "Preparing to send book ${path.name} (${fileSizeKB}KB) to $kindleEmail" }
+        log.info { "Preparing to send book ${book.name} (${fileSizeKB}KB) to $kindleEmail" }
 
         val (host, port) = smtp.split(":").let {
             it[0] to it[1].toInt()
@@ -35,7 +34,7 @@ class KindleService(
             .from(senderEmail)
             .to(kindleEmail)
             .withSubject("Send to Kindle")
-            .withAttachment(path.name, FileDataSource(path.toFile()))
+            .withAttachment(book.name, FileDataSource(book.toFile()))
             .buildEmail()
 
         val mailer = MailerBuilder
@@ -48,11 +47,11 @@ class KindleService(
                 mailer.sendMail(email)
             }.onSuccess {
                 val duration = System.currentTimeMillis() - startTime
-                log.info { "Successfully sent ${path.name} (${fileSizeKB}KB) to $kindleEmail in ${duration}ms" }
-            }.onFailure { exception ->
+                log.info { "Successfully sent ${book.name} (${fileSizeKB}KB) to $kindleEmail in ${duration}ms" }
+            }.onFailure {
                 val duration = System.currentTimeMillis() - startTime
-                log.error(exception) { "Failed to send ${path.name} to $kindleEmail after ${duration}ms" }
-                throw exception
+                log.error(it) { "Failed to send ${book.name} to $kindleEmail after ${duration}ms" }
+                throw it
             }
         }
     }

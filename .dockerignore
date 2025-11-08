@@ -1,0 +1,12 @@
+.gradle
+build/
+.idea/
+.env
+data/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+README.md
+.git
+.gitignore

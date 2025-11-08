@@ -6,14 +6,15 @@ import mu.KotlinLogging
 data class BotConfiguration(
     val telegramBotToken: String,
     val telegramUserId: Long,
-    val kindleEmail: String,
     val smtp: String,
     val senderEmail: String,
     val senderPassword: String,
-    val flibustaUrl: String
+    val flibustaUrl: String,
+    val isPublicBot: Boolean
 ) {
     companion object {
-        private val log = KotlinLogging.logger {  }
+        private val defaultValues = mapOf("IS_PUBLIC_BOT" to "true", "TELEGRAM_USER_ID" to "-1")
+        private val log = KotlinLogging.logger { }
 
         fun fromEnv(): BotConfiguration {
             log.info { "Loading bot configuration from environment variables" }
@@ -25,22 +26,27 @@ data class BotConfiguration(
             val config = BotConfiguration(
                 telegramBotToken = getEnv(dotenv, "TELEGRAM_BOT_TOKEN"),
                 telegramUserId = getEnv(dotenv, "TELEGRAM_USER_ID").toLong(),
-                kindleEmail = getEnv(dotenv, "KINDLE_EMAIL"),
                 smtp = getEnv(dotenv, "SMTP_HOST"),
                 senderEmail = getEnv(dotenv, "SENDER_EMAIL"),
                 senderPassword = getEnv(dotenv, "SENDER_PASSWORD"),
-                flibustaUrl = getEnv(dotenv, "FLIBUSTA_URL")
+                flibustaUrl = getEnv(dotenv, "FLIBUSTA_URL"),
+                isPublicBot = getEnv(dotenv, "IS_PUBLIC_BOT").toBoolean()
             )
 
-            log.info { "Configuration loaded successfully: userId=${config.telegramUserId}, kindle=${config.kindleEmail}, smtp=${config.smtp}, flibusta=${config.flibustaUrl}" }
+            log.info { "Configuration loaded successfully: userId=${config.telegramUserId}, smtp=${config.smtp}, flibusta=${config.flibustaUrl}" }
             return config
         }
 
         private fun getEnv(dotenv: io.github.cdimascio.dotenv.Dotenv, name: String): String {
             return dotenv[name] ?: System.getenv(name) ?: run {
+                defaultValues[name]?.let {
+                    return it
+                }
+
                 log.error { "Missing required environment variable: $name" }
                 throw IllegalStateException("Environment variable $name is not set")
             }
         }
     }
+
 }

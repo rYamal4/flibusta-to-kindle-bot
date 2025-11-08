@@ -3,11 +3,11 @@
 Простой Telegram бот для поиска книг на Flibusta и отправки их на Kindle через email.
 
 <p>
-  <img src="img.png" width="400" />
+  <img src="images/img.png" width="400" />
 </p>
 
 <p>
-  <img src="img_1.png" width="400" />
+  <img src="images/img_1.png" width="400" />
 </p>
 
 ## Возможности
