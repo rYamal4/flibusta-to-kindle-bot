@@ -21,7 +21,7 @@ class FlibustaService(val flibustaUrl: String) : IFlibustaService {
         const val ONE_HOUR_IN_MILLIS = 3600000
     }
 
-    override suspend fun getBooks(query: String): SearchResults {
+    override suspend fun searchBooks(query: String): SearchResults {
         getFromCache(query)?.let {
             log.info { "Cache hit for search '$query'" }
             return it.searchResults

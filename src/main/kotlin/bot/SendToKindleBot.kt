@@ -109,7 +109,7 @@ class SendToKindleBot(
 
                 withContext(dispatcher) {
                     try {
-                        val searchResults = flibustaService.getBooks(query)
+                        val searchResults = flibustaService.searchBooks(query)
 
                         if (searchResults.books.isEmpty() && searchResults.sequences.isEmpty()) {
                             bot.sendMessage(
@@ -191,7 +191,7 @@ class SendToKindleBot(
                                         emptyList<BookSummary>() to emptyList()
                                     }
                                 } else {
-                                    val results = flibustaService.getBooks(searchQuery)
+                                    val results = flibustaService.searchBooks(searchQuery)
                                     results.books to results.sequences
                                 }
                             }
@@ -260,7 +260,7 @@ class SendToKindleBot(
                                         emptyList<BookSummary>() to emptyList()
                                     }
                                 } else {
-                                    val results = flibustaService.getBooks(searchQuery)
+                                    val results = flibustaService.searchBooks(searchQuery)
                                     results.books to results.sequences
                                 }
                             }
