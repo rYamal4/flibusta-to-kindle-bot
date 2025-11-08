@@ -3,13 +3,53 @@ package io.github.ryamal4.service.flibusta
 import io.github.ryamal4.model.BookSequence
 import io.github.ryamal4.model.BookSummary
 import io.github.ryamal4.model.FullBookInfo
+import io.github.ryamal4.model.SearchResults
 import mu.KotlinLogging
 import org.jsoup.Jsoup
 
 private val log = KotlinLogging.logger {}
 
 object FlibustaParser {
-    fun parseBookSearchResults(html: String): List<BookSummary> {
+    fun parseSearchPage(html: String): SearchResults {
+        val sequences = parseSequences(html)
+        val books = parseBooks(html)
+        return SearchResults(sequences, books)
+    }
+
+    fun parsePagesCount(html: String): Int? {
+        val document = Jsoup.parse(html)
+        val pagerList = document.select("div.item-list > ul.pager").firstOrNull()
+
+        if (pagerList == null) {
+            log.debug { "parsePaginationInfo: no pagination found (div.item-list > ul.pager not present)" }
+            return null
+        }
+
+        val lastPageLink = pagerList.select("li.pager-last a").firstOrNull()
+        if (lastPageLink == null) {
+            log.warn { "parsePaginationInfo: pagination found but li.pager-last not found, returning null" }
+            return null
+        }
+
+        val href = lastPageLink.attr("href")
+        val pageMatch = Regex("""[?&]page=(\d+)""").find(href)
+
+        if (pageMatch == null) {
+            log.warn { "parsePaginationInfo: could not extract page number from href '$href', returning null" }
+            return null
+        }
+
+        val totalPages = pageMatch.groupValues[1].toIntOrNull()
+        if (totalPages == null) {
+            log.warn { "parsePaginationInfo: failed to parse page number from '${pageMatch.groupValues[1]}', returning null" }
+            return null
+        }
+
+        log.debug { "parsePaginationInfo: found pagination with totalPages=$totalPages" }
+        return totalPages
+    }
+
+    private fun parseBooks(html: String): List<BookSummary> {
         val document = Jsoup.parse(html)
         val booksHeader = document.select("h3").find { it.text().contains("Найденные книги") }
 
@@ -28,7 +68,11 @@ object FlibustaParser {
         val result = booksList.select("li").mapNotNull { li ->
             val links = li.select("a")
             if (links.size < 2) {
-                log.debug { "parseBookSearchResults: skipped <li> with ${links.size} links (expected ≥2), text: '${li.text().take(50)}'" }
+                log.debug {
+                    "parseBookSearchResults: skipped <li> with ${links.size} links (expected ≥2), text: '${
+                        li.text().take(50)
+                    }'"
+                }
                 return@mapNotNull null
             }
 
@@ -51,7 +95,7 @@ object FlibustaParser {
         return result
     }
 
-    fun parseSequences(html: String): List<BookSequence> {
+    private fun parseSequences(html: String): List<BookSequence> {
         val document = Jsoup.parse(html)
         val sequencesHeader = document.select("h3").find { it.text().contains("Найденные серии") }
 
@@ -169,7 +213,8 @@ object FlibustaParser {
             log.warn { "parseBookPage: <h1.title> not found for book id=$id, defaulting to empty title" }
         }
 
-        val title = rawTitle.replace(Regex("""\s*\((fb2|epub|mobi|pdf|doc|txt|djvu|rtf)\)\s*$""", RegexOption.IGNORE_CASE), "")
+        val title =
+            rawTitle.replace(Regex("""\s*\((fb2|epub|mobi|pdf|doc|txt|djvu|rtf)\)\s*$""", RegexOption.IGNORE_CASE), "")
         if (rawTitle != title) {
             log.debug { "parseBookPage: removed format suffix from title for book id=$id: '$rawTitle' → '$title'" }
         }
@@ -223,21 +268,5 @@ object FlibustaParser {
             annotation = annotation,
             pagesCount = pagesCount
         )
-    }
-
-    fun sanitizeFileName(fileName: String): String {
-        val result = fileName.replace(Regex("[<>:\"/\\\\|?*]"), "_")
-            .replace(Regex("\\s+"), " ")
-            .trim()
-            .take(200)
-
-        val wasModified = fileName != result
-        val wasTruncated = fileName.length > 200
-
-        if (wasModified || wasTruncated) {
-            log.debug { "sanitizeFileName: modified filename (truncated: $wasTruncated, chars replaced: ${wasModified && !wasTruncated}): '$fileName' → '$result'" }
-        }
-
-        return result
     }
 }
