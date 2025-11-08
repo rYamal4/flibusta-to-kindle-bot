@@ -11,6 +11,8 @@ services:
       - .env
     environment:
       - TZ=Europe/Moscow
+    volumes:
+      - ./data:/app/data
     deploy:
       resources:
         limits:
