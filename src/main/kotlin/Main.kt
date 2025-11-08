@@ -4,6 +4,7 @@ import io.github.ryamal4.bot.SendToKindleBot
 import io.github.ryamal4.config.BotConfiguration
 import io.github.ryamal4.service.KindleService
 import io.github.ryamal4.service.flibusta.FlibustaService
+import io.github.ryamal4.storage.UserRepository
 import io.github.ryamal4.storage.initDatabase
 import kotlinx.coroutines.Dispatchers
 import mu.KotlinLogging
@@ -15,6 +16,9 @@ fun main() {
     try {
         log.info { "Initializing database..." }
         initDatabase()
+
+        log.info { "Initializing user repository..." }
+        val userRepository = UserRepository()
 
         log.info { "Loading configuration from environment variables..." }
         val config = BotConfiguration.fromEnv()
@@ -31,7 +35,7 @@ fun main() {
         )
 
         log.info { "Creating Telegram bot..." }
-        val bot = SendToKindleBot(config, flibustaClient, kindleService, dispatcher)
+        val bot = SendToKindleBot(config, flibustaClient, kindleService, dispatcher, userRepository)
 
         Runtime.getRuntime().addShutdownHook(Thread {
             log.info { "Shutting down bot..." }

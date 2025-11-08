@@ -13,8 +13,7 @@ import io.github.ryamal4.model.BookSequence
 import io.github.ryamal4.model.BookSummary
 import io.github.ryamal4.service.KindleService
 import io.github.ryamal4.service.flibusta.FlibustaService
-import io.github.ryamal4.storage.getUserKindleEmail
-import io.github.ryamal4.storage.setUserKindleEmail
+import io.github.ryamal4.storage.UserRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -24,7 +23,8 @@ class SendToKindleBot(
     private val config: BotConfiguration,
     private val flibustaService: FlibustaService,
     private val kindleService: KindleService,
-    private val dispatcher: CoroutineDispatcher
+    private val dispatcher: CoroutineDispatcher,
+    private val userRepository: UserRepository
 ) {
     private val pageSize = 10
     private val searchSessions = mutableMapOf<String, String>()
@@ -41,7 +41,7 @@ class SendToKindleBot(
                     sendUnauthorizedMessage(message.chat.id)
                     return@command
                 }
-                val emailInfo = getUserKindleEmail(config.telegramUserId).let {
+                val emailInfo = userRepository.getKindleEmail(config.telegramUserId).let {
                     if (it == null) "Вы не добавили почту" else "Ваша почта: $it"
                 }
 
@@ -87,7 +87,7 @@ class SendToKindleBot(
                     return@command
                 }
 
-                setUserKindleEmail(userId!!, email)
+                userRepository.setKindleEmail(userId!!, email)
                 log.info { "User $userId set Kindle email to $email" }
 
                 bot.sendMessage(
@@ -399,7 +399,7 @@ class SendToKindleBot(
                     data.startsWith("send_") -> {
                         val bookId = data.substringAfter("send_").toIntOrNull()
                         if (bookId != null) {
-                            val userEmail = getUserKindleEmail(userId)
+                            val userEmail = userRepository.getKindleEmail(userId)
                             if (userEmail == null) {
                                 log.warn { "User $userId attempted to send book without setting Kindle email" }
                                 bot.sendMessage(
