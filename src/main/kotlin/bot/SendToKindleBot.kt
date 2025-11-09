@@ -4,6 +4,7 @@ import com.github.kotlintelegrambot.bot
 import com.github.kotlintelegrambot.dispatch
 import com.github.kotlintelegrambot.dispatcher.callbackQuery
 import com.github.kotlintelegrambot.dispatcher.command
+import com.github.kotlintelegrambot.dispatcher.document
 import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.InlineKeyboardMarkup
@@ -14,10 +15,18 @@ import io.github.ryamal4.model.BookSummary
 import io.github.ryamal4.service.KindleService
 import io.github.ryamal4.service.flibusta.FlibustaService
 import io.github.ryamal4.storage.UserRepository
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import java.nio.file.Files
 import java.util.*
+import kotlin.io.path.div
 
 class SendToKindleBot(
     private val config: BotConfiguration,
@@ -48,14 +57,18 @@ class SendToKindleBot(
                 bot.sendMessage(
                     chatId = ChatId.fromId(message.chat.id),
                     text = """
-                    Чтобы найти книгу, просто напишите название книги и отправьте сообщение боту.
+                    Просто отправьте название книги, и я её найду на Флибусте.
 
-                    Перед использованием бота, установите почту, связанную с вашим аккаунтом Kindle с помощью команды /email и добавьте ${config.senderEmail} в список одобренных email адресов на странице настроек устройства в разделе Personal Document Settings.
+                    Перед первым использованием:
+                    1. Установите почту вашего Kindle командой /email
+                    2. Добавьте ${config.senderEmail} в одобренные адреса в настройках Kindle
 
-                    Команды:
+                    Доступные команды:
+                    /start - справка по боту
+                    /email your@kindle.com - установить почту Kindle
 
-                    /start - информация о боте
-                    /email your@kindle.com - добавление почты вашего аккаунта Kindle
+                    Вы также можете отправить документ напрямую (pdf, epub, doc и др.),
+                    и он будет автоматически отправлен на ваш Kindle.
 
                     """.plus(emailInfo).trimIndent()
                 )
@@ -96,6 +109,10 @@ class SendToKindleBot(
                 )
             }
 
+            document {
+                handleDocumentUpload(message)
+            }
+
             text {
                 if (!isAuthorized(message.from?.id)) {
                     sendUnauthorizedMessage(message.chat.id)
@@ -109,7 +126,7 @@ class SendToKindleBot(
 
                 withContext(dispatcher) {
                     try {
-                        val searchResults = flibustaService.getBooks(query)
+                        val searchResults = flibustaService.searchBooks(query)
 
                         if (searchResults.books.isEmpty() && searchResults.sequences.isEmpty()) {
                             bot.sendMessage(
@@ -191,7 +208,7 @@ class SendToKindleBot(
                                         emptyList<BookSummary>() to emptyList()
                                     }
                                 } else {
-                                    val results = flibustaService.getBooks(searchQuery)
+                                    val results = flibustaService.searchBooks(searchQuery)
                                     results.books to results.sequences
                                 }
                             }
@@ -260,7 +277,7 @@ class SendToKindleBot(
                                         emptyList<BookSummary>() to emptyList()
                                     }
                                 } else {
-                                    val results = flibustaService.getBooks(searchQuery)
+                                    val results = flibustaService.searchBooks(searchQuery)
                                     results.books to results.sequences
                                 }
                             }
@@ -442,6 +459,74 @@ class SendToKindleBot(
                     }
                 }
             }
+
+        }
+    }
+
+    private fun handleDocumentUpload(message: com.github.kotlintelegrambot.entities.Message) {
+        val userId = message.from?.id ?: return
+        val userEmail = userRepository.getKindleEmail(userId)
+
+        if (userEmail == null) {
+            bot.sendMessage(
+                chatId = ChatId.fromId(message.chat.id),
+                text = "Сначала установите email командой /email"
+            )
+            return
+        }
+
+        val document = message.document ?: return
+        log.info { "User $userId uploading document: ${document.fileName}" }
+
+        bot.sendMessage(
+            chatId = ChatId.fromId(message.chat.id),
+            text = "Отправляю на Kindle..."
+        )
+
+        GlobalScope.launch(dispatcher) {
+            var httpClient: HttpClient? = null
+            try {
+                httpClient = HttpClient(CIO)
+
+                val getFileResponse = withContext(dispatcher) {
+                    httpClient.get("https://api.telegram.org/bot${config.telegramBotToken}/getFile?file_id=${document.fileId}")
+                        .bodyAsText()
+                }
+
+                val filePath = extractFilePath(getFileResponse)
+                    ?: throw Exception("Failed to parse file path from Telegram response")
+
+                val fileUrl = "https://api.telegram.org/file/bot${config.telegramBotToken}/$filePath"
+                val fileBytes = withContext(dispatcher) {
+                    httpClient.get(fileUrl).readBytes()
+                }
+
+                val tempDir = Files.createTempDirectory("kindle-uploads")
+                val tempFilePath = tempDir / (document.fileName ?: "document")
+                tempFilePath.toFile().writeBytes(fileBytes)
+
+                kindleService.sendToKindle(tempFilePath, userEmail)
+                log.info { "User $userId successfully sent document ${document.fileName} to $userEmail" }
+
+                bot.sendMessage(
+                    chatId = ChatId.fromId(message.chat.id),
+                    text = "Файл успешно отправлен на Kindle!"
+                )
+            } catch (e: IllegalArgumentException) {
+                log.warn { "User $userId: Invalid document format - ${e.message}" }
+                bot.sendMessage(
+                    chatId = ChatId.fromId(message.chat.id),
+                    text = "${e.message}"
+                )
+            } catch (e: Exception) {
+                log.error(e) { "User $userId: Error sending document to Kindle" }
+                bot.sendMessage(
+                    chatId = ChatId.fromId(message.chat.id),
+                    text = "Ошибка при отправке: ${e.message}"
+                )
+            } finally {
+                httpClient?.close()
+            }
         }
     }
 
@@ -531,6 +616,22 @@ class SendToKindleBot(
         return InlineKeyboardMarkup.create(
             sequenceButtons + bookButtons + listOf(navigationButtons)
         )
+    }
+
+    private fun extractFilePath(jsonResponse: String): String? {
+        val filePathKey = "\"file_path\""
+        val startIndex = jsonResponse.indexOf(filePathKey)
+        if (startIndex == -1) return null
+
+        val colonIndex = jsonResponse.indexOf(":", startIndex)
+        val quoteStart = jsonResponse.indexOf("\"", colonIndex) + 1
+        val quoteEnd = jsonResponse.indexOf("\"", quoteStart)
+
+        return if (quoteStart > 0 && quoteEnd > quoteStart) {
+            jsonResponse.substring(quoteStart, quoteEnd)
+        } else {
+            null
+        }
     }
 
     private fun isAuthorized(userId: Long?): Boolean {

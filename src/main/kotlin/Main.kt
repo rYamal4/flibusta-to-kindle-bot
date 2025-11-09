@@ -40,6 +40,8 @@ fun main() {
         Runtime.getRuntime().addShutdownHook(Thread {
             log.info { "Shutting down bot..." }
             bot.stop()
+            log.info { "Closing Flibusta client..." }
+            flibustaClient.close()
         })
 
         bot.start()

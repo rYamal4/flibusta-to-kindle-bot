@@ -4,83 +4,70 @@ import io.github.ryamal4.service.flibusta.FlibustaParser
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
-import io.kotest.matchers.string.shouldNotContain
 import loadResource
 
 class FlibustaParserTest : FunSpec({
 
-    test("parseBookSearchResults - happy path with search_page.html") {
+    test("parseSearchPage - happy path with search_page.html") {
         val html = loadResource("/service/flibusta/search_page.html")
 
-        val books = FlibustaParser.parseBookSearchResults(html)
+        val searchResults = FlibustaParser.parseSearchPage(html)
 
-        books shouldBe TestFixtures.searchPageBooks
+        searchResults.books shouldBe TestFixtures.searchPageBooks
+        searchResults.sequences shouldBe TestFixtures.searchPageSequences
     }
 
-    test("parseBookSearchResults - large_search_page complete validation") {
+    test("parseSearchPage - large_search_page complete validation") {
         val html = loadResource("/service/flibusta/large_search_page.html")
 
-        val books = FlibustaParser.parseBookSearchResults(html)
+        val searchResults = FlibustaParser.parseSearchPage(html)
 
-        books shouldBe TestFixtures.largeSearchBooks
+        searchResults.books shouldBe TestFixtures.largeSearchBooks
+        searchResults.sequences shouldBe TestFixtures.largeSearchSequences
     }
 
-    test("parseBookSearchResults - large_search_page validates size and extremes") {
+    test("parseSearchPage - large_search_page validates size and extremes") {
         val html = loadResource("/service/flibusta/large_search_page.html")
 
-        val books = FlibustaParser.parseBookSearchResults(html)
+        val searchResults = FlibustaParser.parseSearchPage(html)
 
-        books shouldHaveSize 50
-        books.first() shouldBe TestFixtures.largeSearchBooks.first()
-        books.last() shouldBe TestFixtures.largeSearchBooks.last()
-        books.map { it.id }.distinct().size shouldBe 50
+        searchResults.books shouldHaveSize 50
+        searchResults.books.first() shouldBe TestFixtures.largeSearchBooks.first()
+        searchResults.books.last() shouldBe TestFixtures.largeSearchBooks.last()
+        searchResults.books.map { it.id }.distinct().size shouldBe 50
+
+        searchResults.sequences shouldHaveSize 50
+        searchResults.sequences.all { it.booksCount > 0 } shouldBe true
+        searchResults.sequences.maxOf { it.booksCount } shouldBe 23
+        searchResults.sequences.first() shouldBe TestFixtures.largeSearchSequences.first()
+        searchResults.sequences.last() shouldBe TestFixtures.largeSearchSequences.last()
     }
 
-    test("parseBookSearchResults - handles missing data gracefully") {
-        val htmlNoBooks = "<html><body><h3>Найденные книги</h3><p>No list</p></body></html>"
+    test("parseSearchPage - handles missing data gracefully") {
+        val htmlNoData =
+            "<html><body><h3>Найденные книги</h3><p>No list</p><h3>Найденные серии</h3><p>No list</p></body></html>"
 
-        val books = FlibustaParser.parseBookSearchResults(htmlNoBooks)
+        val searchResults = FlibustaParser.parseSearchPage(htmlNoData)
 
-        books.shouldBeEmpty()
+        searchResults.books.shouldBeEmpty()
+        searchResults.sequences.shouldBeEmpty()
     }
 
-    test("parseSequences - happy path with search_page.html") {
+    test("parsePaginationInfo - returns null for search_page.html without pagination") {
         val html = loadResource("/service/flibusta/search_page.html")
 
-        val sequences = FlibustaParser.parseSequences(html)
+        val paginationInfo = FlibustaParser.parsePagesCount(html)
 
-        sequences shouldBe TestFixtures.searchPageSequences
+        paginationInfo shouldBe null
     }
 
-    test("parseSequences - large_search_page complete validation") {
+    test("parsePaginationInfo - extracts totalPages from large_search_page.html") {
         val html = loadResource("/service/flibusta/large_search_page.html")
 
-        val sequences = FlibustaParser.parseSequences(html)
+        val paginationInfo = FlibustaParser.parsePagesCount(html)
 
-        sequences shouldBe TestFixtures.largeSearchSequences
-    }
-
-    test("parseSequences - large_search_page validates book counts range") {
-        val html = loadResource("/service/flibusta/large_search_page.html")
-
-        val sequences = FlibustaParser.parseSequences(html)
-
-        sequences shouldHaveSize 50
-        sequences.all { it.booksCount > 0 } shouldBe true
-        sequences.maxOf { it.booksCount } shouldBe 23
-        sequences.first() shouldBe TestFixtures.largeSearchSequences.first()
-        sequences.last() shouldBe TestFixtures.largeSearchSequences.last()
-    }
-
-    test("parseSequences - handles missing data gracefully") {
-        val htmlNoSequences = "<html><body><h3>Найденные серии</h3><p>No list</p></body></html>"
-
-        val sequences = FlibustaParser.parseSequences(htmlNoSequences)
-
-        sequences.shouldBeEmpty()
+        paginationInfo shouldBe 14
     }
 
     test("parseSequenceBooks - happy path with sequences_page.html") {
@@ -203,27 +190,5 @@ class FlibustaParserTest : FunSpec({
 
         val infoMixedCase = FlibustaParser.parseBookPage(htmlMixedCase, 456)
         infoMixedCase.summary.title shouldBe "Another Book"
-    }
-
-    test("sanitizeFileName - normalizes correctly") {
-        val input = "  Book:Title<>|?*(multiple   spaces).txt"
-
-        val result = FlibustaParser.sanitizeFileName(input)
-
-        result shouldBe "Book_Title_____(multiple spaces).txt"
-        result shouldNotContain ":"
-        result shouldNotContain "<"
-        result shouldNotContain ">"
-        result shouldNotContain "|"
-        result shouldNotContain "?"
-        result shouldNotContain "*"
-    }
-
-    test("sanitizeFileName - truncates to 200 characters") {
-        val longName = "a".repeat(250)
-
-        val result = FlibustaParser.sanitizeFileName(longName)
-
-        result.length shouldBe 200
     }
 })

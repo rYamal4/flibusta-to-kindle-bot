@@ -8,6 +8,7 @@ import org.simplejavamail.email.EmailBuilder
 import org.simplejavamail.mailer.MailerBuilder
 import java.nio.file.Path
 import kotlin.coroutines.CoroutineContext
+import kotlin.io.path.extension
 import kotlin.io.path.name
 
 class KindleService(
@@ -17,8 +18,16 @@ class KindleService(
     val dispatcher: CoroutineContext
 ) : IKindleService {
     private val log = KotlinLogging.logger { }
+    private val allowedExtensions = listOf(
+        "pdf", "doc", "docx", "txt", "rtf", "htm", "html", "png", "gif", "jpg",
+        "jpeg", "bmp", "epub"
+    )
 
     override suspend fun sendToKindle(book: Path, kindleEmail: String) {
+        require(book.extension in allowedExtensions) {
+            "not allowed extension: ${book.extension}"
+        }
+
         val fileSize = book.toFile().length()
         val fileSizeKB = fileSize / 1024
         log.info { "Preparing to send book ${book.name} (${fileSizeKB}KB) to $kindleEmail" }
