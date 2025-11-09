@@ -1,0 +1,3 @@
+src/test/resources/**/*.html linguist-vendored
+build/resources/test/**/*.html linguist-vendored
+build/reports/tests/test/**/*.html linguist-vendored
