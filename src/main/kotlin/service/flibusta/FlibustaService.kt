@@ -9,16 +9,21 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.utils.io.jvm.javaio.*
 import mu.KotlinLogging
+import java.io.Closeable
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.div
 
-class FlibustaService(val flibustaUrl: String) : IFlibustaService {
+class FlibustaService(
+    val flibustaUrl: String,
+    private val client: HttpClient = HttpClient(CIO)
+) : IFlibustaService, Closeable {
     private val log = KotlinLogging.logger { }
     private val searchCache = mutableMapOf<String, CachedSearch>()
 
     private companion object {
         const val ONE_HOUR_IN_MILLIS = 3600000
+        const val MAX_PAGES_TO_LOAD = 5
     }
 
     override suspend fun searchBooks(query: String): SearchResults {
@@ -28,27 +33,40 @@ class FlibustaService(val flibustaUrl: String) : IFlibustaService {
         }
 
         log.info { "Cache miss - searching for books with title: '$query'" }
-        val client = HttpClient(CIO)
 
         return runCatching {
-            val response = client.get("$flibustaUrl/booksearch") {
-                parameter("ask", query)
-                parameter("chs", "on")
-                parameter("chb", "on")
+            val firstPageHtml = fetchSearchPage(query, 0)
+            val pagesCount = FlibustaParser.parsePagesCount(firstPageHtml)
+            val firstPageResults = FlibustaParser.parseSearchPage(firstPageHtml)
+
+            val searchResults = if (pagesCount == null) {
+                log.debug { "No pagination found for query '$query', parsing single page" }
+                firstPageResults
+            } else {
+                val pagesToLoad = minOf(pagesCount, MAX_PAGES_TO_LOAD)
+
+                log.info { "Found pagination for query '$query': total $pagesCount pages, loading first $pagesToLoad pages" }
+
+                val allResults = mutableListOf(firstPageResults)
+
+                for (page in 1..pagesToLoad) {
+                    val pageHtml = fetchSearchPage(query, page)
+                    allResults.add(FlibustaParser.parseSearchPage(pageHtml))
+                }
+
+                val mergedBooks = allResults.flatMap { it.books }
+                val mergedSequences = allResults.flatMap { it.sequences }
+
+                log.info { "Loaded ${pagesToLoad + 1} pages for query '$query': ${mergedSequences.size} sequences, ${mergedBooks.size} books total" }
+
+                SearchResults(mergedSequences, mergedBooks)
             }
+            log.info { "Search '$query' found ${searchResults.books.size} books and ${searchResults.sequences.size} sequences)" }
 
-            val html = response.bodyAsText()
-            val sequences = FlibustaParser.parseSequences(html)
-            val books = FlibustaParser.parseBookSearchResults(html)
-
-            log.info { "Search '$query' found ${books.size} books and ${sequences.size} sequences)" }
-
-            searchCache[query] = CachedSearch(query, SearchResults(sequences, books))
+            searchCache[query] = CachedSearch(query, searchResults)
             log.debug { "Cached search results for '$query' (cache size: ${searchCache.size})" }
 
-            SearchResults(sequences, books)
-        }.also {
-            client.close()
+            searchResults
         }.onFailure {
             log.error(it) { "Error while searching for '$query'" }
         }.getOrThrow()
@@ -56,7 +74,6 @@ class FlibustaService(val flibustaUrl: String) : IFlibustaService {
 
     override suspend fun getSequenceBooks(sequenceId: Int): List<BookSummary> {
         log.info { "Getting books for sequence id: $sequenceId" }
-        val client = HttpClient(CIO)
 
         return runCatching {
             val response = client.get("$flibustaUrl/sequence/$sequenceId")
@@ -69,8 +86,6 @@ class FlibustaService(val flibustaUrl: String) : IFlibustaService {
 
             log.info { "Sequence $sequenceId contains ${books.size} books" }
             books
-        }.also {
-            client.close()
         }.onFailure {
             log.error(it) { "Error while getting books for sequence $sequenceId" }
         }.getOrThrow()
@@ -78,7 +93,6 @@ class FlibustaService(val flibustaUrl: String) : IFlibustaService {
 
     override suspend fun getBookInfo(bookId: Int): FullBookInfo {
         log.info { "Getting book info for id: $bookId" }
-        val client = HttpClient(CIO)
 
         return runCatching {
             val response = client.get("$flibustaUrl/b/$bookId")
@@ -88,8 +102,6 @@ class FlibustaService(val flibustaUrl: String) : IFlibustaService {
 
             log.info { "Retrieved info for book $bookId: '${bookInfo.summary.title}'" }
             bookInfo
-        }.also {
-            client.close()
         }.onFailure {
             log.error(it) { "Error while getting book info for book with id $bookId" }
         }.getOrThrow()
@@ -97,11 +109,10 @@ class FlibustaService(val flibustaUrl: String) : IFlibustaService {
 
     override suspend fun downloadBook(bookId: Int): Path {
         log.info { "Starting download for book $bookId" }
-        val client = HttpClient(CIO)
         val url = "${flibustaUrl}/b/$bookId/epub"
         val startTime = System.currentTimeMillis()
 
-        return this.runCatching {
+        return runCatching {
             val response = client.get(url)
             val bookBytes = response.bodyAsChannel().toInputStream().readBytes()
             val downloadDuration = System.currentTimeMillis() - startTime
@@ -110,8 +121,7 @@ class FlibustaService(val flibustaUrl: String) : IFlibustaService {
             log.info { "Downloaded book $bookId: ${fileSizeKB}KB in ${downloadDuration}ms" }
 
             val bookInfo = getBookInfo(bookId)
-            val fileName =
-                FlibustaParser.sanitizeFileName("${bookInfo.summary.title} - ${bookInfo.summary.author}.epub")
+            val fileName = sanitizeFileName("${bookInfo.summary.title} - ${bookInfo.summary.author}.epub")
 
             val booksDir = Files.createTempDirectory("books")
             log.debug { "Created temp directory: $booksDir" }
@@ -122,11 +132,39 @@ class FlibustaService(val flibustaUrl: String) : IFlibustaService {
             log.info { "Saved book $bookId to $bookFile" }
 
             bookFile
-        }.also {
-            client.close()
         }.onFailure {
             log.error(it) { "Error while downloading book with id $bookId" }
         }.getOrThrow()
+    }
+
+    private suspend fun fetchSearchPage(query: String, page: Int): String {
+        val response = client.get("$flibustaUrl/booksearch") {
+            parameter("ask", query)
+            parameter("page", page)
+            parameter("chs", "on")
+            parameter("chb", "on")
+        }
+        return response.bodyAsText()
+    }
+
+    override fun close() {
+        client.close()
+    }
+
+    private fun sanitizeFileName(fileName: String): String {
+        val result = fileName.replace(Regex("[<>:\"/\\\\|?*]"), "_")
+            .replace(Regex("\\s+"), " ")
+            .trim()
+            .take(200)
+
+        val wasModified = fileName != result
+        val wasTruncated = fileName.length > 200
+
+        if (wasModified || wasTruncated) {
+            log.debug { "sanitizeFileName: modified filename (truncated: $wasTruncated, chars replaced: ${wasModified && !wasTruncated}): '$fileName' → '$result'" }
+        }
+
+        return result
     }
 
     private fun getFromCache(title: String): CachedSearch? {
